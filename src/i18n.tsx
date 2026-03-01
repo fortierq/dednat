@@ -5,19 +5,32 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export type Language = 'fr' | 'en';
 
 interface Translations {
+  rulesUsed: string;
   // Header
   appTitle: string;
   appSubtitle: string;
+  home: string;
+  github: string;
+  darkMode: string;
+  lightMode: string;
   
   // Exercise list
-  selectExercise: string;
   filters: string;
   difficulty: string;
-  rulesUsed: string;
   clearAllFilters: string;
   showingExercises: (count: number, total: number) => string;
   noExercisesMatch: string;
   clearFilters: string;
+  customSequent: string;
+  customSequentModalTitle: string;
+  customSequentModalDescription: string;
+  customSequentSyntaxHelp: string;
+  customHypothesesPlaceholder: string;
+  customGoalPlaceholder: string;
+  startProof: string;
+  customSequentTitle: string;
+  customSequentDescription: string;
+  randomExercise: string;
   
   // Difficulty levels
   easy: string;
@@ -28,14 +41,14 @@ interface Translations {
   goal: string;
   hypotheses: string;
   none: string;
-  proofTree: string;
   resetProof: string;
   backToExercises: string;
   undo: string;
+  nextExercise: string;
   
   // Rule panel
   inferenceRules: string;
-  hoverToSeeTree: string;
+  showRuleTrees: string;
   introductionRules: string;
   eliminationRules: string;
   otherRules: string;
@@ -77,6 +90,7 @@ interface Translations {
   undidLastAction: string;
   nothingToUndo: string;
   unknownError: string;
+  proofCompletedWithAxioms: string;
   
   // Completion modal
   proofComplete: string;
@@ -94,40 +108,52 @@ interface Translations {
 const translations: Record<Language, Translations> = {
   fr: {
     // Header
-    appTitle: '🌳 Déduction Naturelle - Arbres de Preuve',
+    appTitle: 'Déduction Naturelle - Arbres de Preuve',
     appSubtitle: 'Apprenez la logique propositionnelle par la construction interactive de preuves',
-    
+    home: 'Accueil',
+    github: 'GitHub',
+    darkMode: 'Mode sombre',
+    lightMode: 'Mode clair',
+
     // Exercise list
-    selectExercise: 'Choisir un exercice',
     filters: 'Filtres',
     difficulty: 'Difficulté',
-    rulesUsed: 'Règles utilisées',
     clearAllFilters: 'Effacer tous les filtres',
     showingExercises: (count, total) => `Affichage de ${count} sur ${total} exercices`,
     noExercisesMatch: 'Aucun exercice ne correspond à vos filtres.',
     clearFilters: 'Effacer les filtres',
-    
+    customSequent: 'Séquent personnalisé',
+    customSequentModalTitle: 'Créer un séquent personnalisé',
+    customSequentModalDescription: 'Entrez les hypothèses séparées par des virgules, puis le but à prouver.',
+    customSequentSyntaxHelp: 'Symboles : !, &, |, ->, 0, 1, ( )',
+    customHypothesesPlaceholder: 'Ex: A -> B, A',
+    customGoalPlaceholder: 'Ex: B',
+    startProof: 'Commencer la preuve',
+    customSequentTitle: 'Séquent personnalisé',
+    customSequentDescription: 'Séquent défini par l\'utilisateur',
+    randomExercise: 'Exercices aléatoires',
+
     // Difficulty levels
-    easy: '🌱 Facile',
-    medium: '🌿 Moyen',
-    hard: '🌳 Difficile',
-    
+    easy: 'Facile',
+    medium: 'Moyen',
+    hard: 'Difficile',
+
     // Exercise view
     goal: 'But',
     hypotheses: 'Hypothèses',
     none: 'Aucune',
-    proofTree: 'Arbre de preuve',
-    resetProof: '🔄 Réinitialiser',
-    backToExercises: '⬅️ Retour aux exercices',
-    undo: '↩️ Annuler',
-    
+    resetProof: 'Réinitialiser',
+    backToExercises: 'Retour aux exercices',
+    undo: 'Annuler',
+    nextExercise: 'Exercice suivant',
+
     // Rule panel
     inferenceRules: 'Règles d\'inférence',
-    hoverToSeeTree: 'Survolez une règle pour voir sa forme arborescente',
-    introductionRules: 'Règles d\'introduction',
-    eliminationRules: 'Règles d\'élimination',
+    showRuleTrees: 'Afficher les arbres de règles',
+    introductionRules: 'Introduction',
+    eliminationRules: 'Élimination',
     otherRules: 'Autres règles',
-    
+
     // Rule names
     implIntro: '→ Introduction',
     implElim: '→ Élimination',
@@ -140,23 +166,23 @@ const translations: Record<Language, Translations> = {
     negIntro: '¬ Introduction',
     negElim: '¬ Élimination',
     absurd: 'Ex Falso',
-    raa: 'RAA (Raisonnement par l\'absurde)',
+    raa: 'raa (Raisonnement par l\'absurde)',
     axiom: 'Axiome',
-    
+
     // Modal titles
     implElimTitle: '→ Élimination (Modus Ponens)',
     andElimLeftTitle: '∧ Élimination Gauche',
     andElimRightTitle: '∧ Élimination Droite',
     orElimTitle: '∨ Élimination',
     negElimTitle: '¬ Élimination',
-    
+
     // Modal descriptions
     implElimDesc: (goal) => `Entrez l'implication A → ${goal} :`,
     andElimLeftDesc: (goal) => `Entrez la conjonction ${goal} ∧ B :`,
     andElimRightDesc: (goal) => `Entrez la conjonction A ∧ ${goal} :`,
     orElimDesc: 'Entrez la disjonction A ∨ B pour faire une analyse de cas :',
     negElimDesc: 'Entrez la formule A (vous devrez prouver A et ¬A) :',
-    
+
     // Messages
     noGoalSelected: 'Aucun but sélectionné',
     noHypothesisMatches: (goal) => `Aucune hypothèse ne correspond au but : ${goal}`,
@@ -165,55 +191,69 @@ const translations: Record<Language, Translations> = {
     undidLastAction: 'Dernière action annulée',
     nothingToUndo: 'Rien à annuler',
     unknownError: 'Erreur inconnue',
-    
+    proofCompletedWithAxioms: 'Preuve terminée.',
+
     // Completion modal
     proofComplete: 'Preuve terminée !',
     congratulations: 'Félicitations ! Vous avez prouvé :',
     chooseAnotherExercise: 'Choisir un autre exercice',
     viewProof: 'Voir la preuve',
-    
+
     // Formula input modal
     confirm: 'Confirmer',
     cancel: 'Annuler',
     enterFormula: 'Entrez une formule',
     invalidFormula: 'Formule invalide',
+    rulesUsed: 'Règles'
   },
   en: {
     // Header
-    appTitle: '🌳 Natural Deduction Proof Tree Builder',
+    appTitle: 'Natural Deduction Proof Tree Builder',
     appSubtitle: 'Learn propositional logic through interactive proof construction',
-    
+    home: 'Home',
+    github: 'GitHub',
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
+
     // Exercise list
-    selectExercise: 'Select an Exercise',
     filters: 'Filters',
     difficulty: 'Difficulty',
-    rulesUsed: 'Rules Used',
     clearAllFilters: 'Clear all filters',
     showingExercises: (count, total) => `Showing ${count} of ${total} exercises`,
     noExercisesMatch: 'No exercises match your filters.',
     clearFilters: 'Clear filters',
-    
+    customSequent: 'Custom Sequent',
+    customSequentModalTitle: 'Create Custom Sequent',
+    customSequentModalDescription: 'Enter hypotheses separated by commas, then the goal to prove.',
+    customSequentSyntaxHelp: 'Symbols : !, &, |, ->, 0, 1, ( )',
+    customHypothesesPlaceholder: 'e.g. A -> B, A',
+    customGoalPlaceholder: 'e.g. B',
+    startProof: 'Start Proof',
+    customSequentTitle: 'Custom Sequent',
+    customSequentDescription: 'User-defined sequent',
+    randomExercise: 'Random Exercises',
+
     // Difficulty levels
-    easy: '🌱 Easy',
-    medium: '🌿 Medium',
-    hard: '🌳 Hard',
-    
+    easy: 'Easy',
+    medium: 'Medium',
+    hard: 'Hard',
+
     // Exercise view
     goal: 'Goal',
     hypotheses: 'Hypotheses',
     none: 'None',
-    proofTree: 'Proof Tree',
-    resetProof: '🔄 Reset Proof',
-    backToExercises: '⬅️ Back to Exercises',
-    undo: '↩️ Undo',
-    
+    resetProof: 'Reset Proof',
+    backToExercises: 'Back to Exercises',
+    undo: 'Undo',
+    nextExercise: 'Next Exercise',
+
     // Rule panel
     inferenceRules: 'Inference Rules',
-    hoverToSeeTree: 'Hover over a rule to see its tree form',
-    introductionRules: 'Introduction Rules',
-    eliminationRules: 'Elimination Rules',
+    showRuleTrees: 'Show rule trees',
+    introductionRules: 'Introduction',
+    eliminationRules: 'Elimination',
     otherRules: 'Other Rules',
-    
+
     // Rule names
     implIntro: '→ Introduction',
     implElim: '→ Elimination',
@@ -226,23 +266,23 @@ const translations: Record<Language, Translations> = {
     negIntro: '¬ Introduction',
     negElim: '¬ Elimination',
     absurd: 'Ex Falso',
-    raa: 'RAA (Reductio ad Absurdum)',
+    raa: 'raa (Reductio ad Absurdum)',
     axiom: 'Axiom',
-    
+
     // Modal titles
     implElimTitle: '→ Elimination (Modus Ponens)',
     andElimLeftTitle: '∧ Elimination Left',
     andElimRightTitle: '∧ Elimination Right',
     orElimTitle: '∨ Elimination',
     negElimTitle: '¬ Elimination',
-    
+
     // Modal descriptions
     implElimDesc: (goal) => `Enter the implication A → ${goal}:`,
     andElimLeftDesc: (goal) => `Enter the conjunction ${goal} ∧ B:`,
     andElimRightDesc: (goal) => `Enter the conjunction A ∧ ${goal}:`,
     orElimDesc: 'Enter the disjunction A ∨ B to do case analysis on:',
     negElimDesc: 'Enter the formula A (you will need to prove both A and ¬A):',
-    
+
     // Messages
     noGoalSelected: 'No goal selected',
     noHypothesisMatches: (goal) => `No hypothesis matches the goal: ${goal}`,
@@ -251,18 +291,20 @@ const translations: Record<Language, Translations> = {
     undidLastAction: 'Undid last action',
     nothingToUndo: 'Nothing to undo',
     unknownError: 'Unknown error',
-    
+    proofCompletedWithAxioms: 'Proof tree completed.',
+
     // Completion modal
     proofComplete: 'Proof Complete!',
     congratulations: 'Congratulations! You successfully proved:',
     chooseAnotherExercise: 'Choose Another Exercise',
     viewProof: 'View Proof',
-    
+
     // Formula input modal
     confirm: 'Confirm',
     cancel: 'Cancel',
     enterFormula: 'Enter a formula',
     invalidFormula: 'Invalid formula',
+    rulesUsed: 'Rules'
   }
 };
 
@@ -301,28 +343,31 @@ export const useLanguage = (): LanguageContextType => {
 // Language selector component
 export const LanguageSelector: React.FC = () => {
   const { language, setLanguage } = useLanguage();
+  const nextLanguage: Language = language === 'fr' ? 'en' : 'fr';
   
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center">
       <button
-        onClick={() => setLanguage('fr')}
-        className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-          language === 'fr' 
-            ? 'bg-white text-blue-600' 
-            : 'bg-white/20 text-white hover:bg-white/30'
-        }`}
+        onClick={() => setLanguage(nextLanguage)}
+        title={language === 'fr' ? 'Français' : 'English'}
+        aria-label={language === 'fr' ? 'Français' : 'English'}
+        className="w-11 h-11 p-0 rounded-xl border-2 bg-white/15 text-white border-white/30 hover:bg-white/25 hover:border-white/40 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors flex items-center justify-center"
       >
-        FR
-      </button>
-      <button
-        onClick={() => setLanguage('en')}
-        className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-          language === 'en' 
-            ? 'bg-white text-blue-600' 
-            : 'bg-white/20 text-white hover:bg-white/30'
-        }`}
-      >
-        EN
+        {language === 'fr' ? (
+        <svg className="w-7 h-5 rounded-sm shadow-sm" viewBox="0 0 24 16" aria-hidden="true">
+          <rect width="8" height="16" x="0" y="0" fill="#1f4aa8" />
+          <rect width="8" height="16" x="8" y="0" fill="#ffffff" />
+          <rect width="8" height="16" x="16" y="0" fill="#d3202a" />
+        </svg>
+        ) : (
+        <svg className="w-7 h-5 rounded-sm shadow-sm" viewBox="0 0 24 16" aria-hidden="true">
+          <rect width="24" height="16" fill="#1f4aa8" />
+          <rect x="10" y="0" width="4" height="16" fill="#ffffff" />
+          <rect x="0" y="6" width="24" height="4" fill="#ffffff" />
+          <rect x="11" y="0" width="2" height="16" fill="#d3202a" />
+          <rect x="0" y="7" width="24" height="2" fill="#d3202a" />
+        </svg>
+        )}
       </button>
     </div>
   );

@@ -265,8 +265,12 @@ export class FormulaParser {
             return formula;
         }
 
-        if (this.match('⊥') || this.matchWord('false') || this.matchWord('bot')) {
+        if (this.match('⊥') || this.match('0') || this.matchWord('false')) {
             return Formula.bottom();
+        }
+
+        if (this.match('1') || this.matchWord('true')) {
+            return Formula.neg(Formula.bottom());
         }
 
         const start = this.pos;

@@ -2,16 +2,14 @@
 
 import { Formula, FormulaParser } from './formulas';
 
-export type RuleType = '→I' | '→E' | '∧I' | '∧E' | '∨I' | '∨E' | '¬I' | '¬E' | '⊥E' | 'RAA';
+export type RuleType = '\\to_i' | '\\to_e' | '\\wedge_i' | '\\wedge_e' | '\\vee_i' | '\\vee_e' | '\\neg_i' | '\\neg_e' | '\\bot_e' | '\\mathrm{raa}';
 
 export interface Exercise {
     id: number;
     title: string;
-    description: string;
     goal: string;
     hypotheses: string[];
     difficulty: 'easy' | 'medium' | 'hard';
-    hint: string;
     rules: RuleType[];
 }
 
@@ -24,246 +22,198 @@ export const exercises: Exercise[] = [
     {
         id: 1,
         title: "Identity",
-        description: "Prove that A implies A",
         goal: "A -> A",
         hypotheses: [],
         difficulty: "easy",
-        hint: "Use implication introduction, then axiom",
-        rules: ['→I']
+        rules: ['\\to_i']
     },
     {
         id: 2,
         title: "Modus Ponens",
-        description: "From A → B and A, derive B",
         goal: "B",
         hypotheses: ["A -> B", "A"],
         difficulty: "easy",
-        hint: "Use implication elimination",
-        rules: ['→E']
+        rules: ['\\to_e']
     },
     {
         id: 3,
         title: "Conjunction Elimination",
-        description: "From A ∧ B, derive A",
         goal: "A",
         hypotheses: ["A & B"],
         difficulty: "easy",
-        hint: "Use conjunction elimination left",
-        rules: ['∧E']
+        rules: ['\\wedge_e']
     },
     {
         id: 4,
         title: "Conjunction Introduction",
-        description: "From A and B, derive A ∧ B",
         goal: "A & B",
         hypotheses: ["A", "B"],
         difficulty: "easy",
-        hint: "Use conjunction introduction",
-        rules: ['∧I']
+        rules: ['\\wedge_i']
     },
     {
         id: 5,
         title: "Disjunction Introduction",
-        description: "From A, derive A ∨ B",
         goal: "A | B",
         hypotheses: ["A"],
         difficulty: "easy",
-        hint: "Use disjunction introduction left",
-        rules: ['∨I']
+        rules: ['\\vee_i']
     },
     {
         id: 6,
         title: "Hypothetical Syllogism",
-        description: "Chain two implications",
         goal: "(A -> B) -> (B -> C) -> (A -> C)",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Use implication introduction three times, then elimination",
-        rules: ['→I', '→E']
+        rules: ['\\to_i', '\\to_e']
     },
     {
         id: 7,
         title: "Conjunction Commutativity",
-        description: "Prove that conjunction is commutative",
         goal: "(A & B) -> (B & A)",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Introduce the implication, eliminate the conjunction, then reintroduce",
-        rules: ['→I', '∧I', '∧E']
+        rules: ['\\to_i', '\\wedge_i', '\\wedge_e']
     },
     {
         id: 8,
         title: "Disjunction from Implication",
-        description: "From A → B and A, derive A ∨ B",
         goal: "A | B",
         hypotheses: ["A -> B", "A"],
         difficulty: "medium",
-        hint: "You can derive B, then introduce the disjunction",
-        rules: ['→E', '∨I']
+        rules: ['\\to_e', '\\vee_i']
     },
     {
         id: 9,
         title: "Currying",
-        description: "Transform a binary function to curried form",
         goal: "(A & B -> C) -> (A -> B -> C)",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Introduce implications step by step",
-        rules: ['→I', '→E', '∧I']
+        rules: ['\\to_i', '\\to_e', '\\wedge_i']
     },
     {
         id: 10,
         title: "Uncurrying",
-        description: "Transform a curried function to binary form",
         goal: "(A -> B -> C) -> (A & B -> C)",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Use conjunction elimination to get the arguments",
-        rules: ['→I', '→E', '∧E']
+        rules: ['\\to_i', '\\to_e', '\\wedge_e']
     },
     {
         id: 11,
         title: "Disjunction Commutativity",
-        description: "Prove that disjunction is commutative",
         goal: "(A | B) -> (B | A)",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Use disjunction elimination with case analysis",
-        rules: ['→I', '∨I', '∨E']
+        rules: ['\\to_i', '\\vee_i', '\\vee_e']
     },
     {
         id: 12,
         title: "Distribution (∧ over ∨)",
-        description: "Distribute conjunction over disjunction",
         goal: "(A & (B | C)) -> ((A & B) | (A & C))",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Eliminate conjunction, then do case analysis on the disjunction",
-        rules: ['→I', '∧I', '∧E', '∨I', '∨E']
+        rules: ['\\to_i', '\\wedge_i', '\\wedge_e', '\\vee_i', '\\vee_e']
     },
     {
         id: 13,
         title: "Contraposition (one direction)",
-        description: "Prove one direction of contraposition",
         goal: "(A -> B) -> (¬B -> ¬A)",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Use negation introduction and elimination",
-        rules: ['→I', '→E', '¬I', '¬E']
+        rules: ['\\to_i', '\\to_e', '\\neg_i', '\\neg_e']
     },
     {
         id: 14,
         title: "Double Negation Introduction",
-        description: "Prove that A implies ¬¬A",
         goal: "A -> ¬¬A",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Use negation introduction: assume ¬A and derive ⊥",
-        rules: ['→I', '¬I', '¬E']
+        rules: ['\\to_i', '\\neg_i', '\\neg_e']
     },
     {
         id: 15,
         title: "Modus Tollens",
-        description: "From A → B and ¬B, derive ¬A",
         goal: "¬A",
         hypotheses: ["A -> B", "¬B"],
         difficulty: "medium",
-        hint: "Assume A, derive B, then use ¬B to get ⊥",
-        rules: ['→E', '¬I', '¬E']
+        rules: ['\\to_e', '\\neg_i', '\\neg_e']
     },
     {
         id: 16,
         title: "Double Negation Elimination",
-        description: "Prove that ¬¬A implies A (requires classical logic)",
         goal: "¬¬A -> A",
         hypotheses: [],
         difficulty: "hard",
-        hint: "Use RAA: assume ¬A and derive ⊥ from ¬¬A and ¬A",
-        rules: ['→I', '¬E', 'RAA']
+        rules: ['\\to_i', '\\neg_e', '\\mathrm{raa}']
     },
     {
         id: 17,
         title: "Excluded Middle",
-        description: "Prove the law of excluded middle (requires classical logic)",
         goal: "A | ¬A",
         hypotheses: [],
         difficulty: "hard",
-        hint: "Use RAA at the top level, then work with ¬(A ∨ ¬A)",
-        rules: ['∨I', '¬I', '¬E', 'RAA']
+        rules: ['\\vee_i', '\\neg_i', '\\neg_e', '\\mathrm{raa}']
     },
     {
         id: 18,
         title: "Peirce's Law",
-        description: "Prove Peirce's Law (requires classical logic)",
         goal: "((A -> B) -> A) -> A",
         hypotheses: [],
         difficulty: "hard",
-        hint: "Use RAA and work backwards from ¬A",
-        rules: ['→I', '→E', '⊥E', 'RAA']
+        rules: ['\\to_i', '\\to_e', '\\bot_e', '\\mathrm{raa}']
     },
     {
         id: 19,
         title: "De Morgan (¬(A ∧ B) → ¬A ∨ ¬B)",
-        description: "Prove one of De Morgan's laws (requires classical logic)",
         goal: "¬(A & B) -> (¬A | ¬B)",
         hypotheses: [],
         difficulty: "hard",
-        hint: "Use RAA and negation rules extensively",
-        rules: ['→I', '∧I', '∨I', '¬I', '¬E', 'RAA']
+        rules: ['\\to_i', '\\wedge_i', '\\vee_i', '\\neg_i', '\\neg_e', '\\mathrm{raa}']
     },
     {
         id: 20,
         title: "De Morgan (¬(A ∨ B) → ¬A ∧ ¬B)",
-        description: "Prove the other De Morgan's law",
         goal: "¬(A | B) -> (¬A & ¬B)",
         hypotheses: [],
         difficulty: "hard",
-        hint: "Use negation introduction for each conjunct",
-        rules: ['→I', '∧I', '∨I', '¬I', '¬E']
+        rules: ['\\to_i', '\\wedge_i', '\\vee_i', '\\neg_i', '\\neg_e']
     },
     {
         id: 21,
         title: "Constructive Dilemma",
-        description: "A complex reasoning pattern",
         goal: "(A -> B) -> (C -> D) -> (A | C) -> (B | D)",
         hypotheses: [],
         difficulty: "hard",
-        hint: "Use disjunction elimination on A ∨ C",
-        rules: ['→I', '→E', '∨I', '∨E']
+        rules: ['\\to_i', '\\to_e', '\\vee_i', '\\vee_e']
     },
     {
         id: 22,
         title: "Explosion (Ex Falso)",
-        description: "From a contradiction, derive anything",
         goal: "(A & ¬A) -> B",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Use negation elimination to get ⊥, then ex falso",
-        rules: ['→I', '∧E', '¬E', '⊥E']
+        rules: ['\\to_i', '\\wedge_e', '\\neg_e', '\\bot_e']
     },
     {
         id: 23,
         title: "Negation of Implication",
-        description: "Prove that ¬(A → B) implies A (requires classical logic)",
         goal: "¬(A -> B) -> A",
         hypotheses: [],
         difficulty: "hard",
-        hint: "Use RAA: assume ¬A and try to prove A → B",
-        rules: ['→I', '⊥E', 'RAA']
+        rules: ['\\to_i', '\\bot_e', '\\mathrm{raa}']
     },
     {
         id: 24,
         title: "Complex Derivation",
-        description: "A multi-step derivation combining several rules",
         goal: "((A -> B) & (B -> C) & A) -> C",
         hypotheses: [],
         difficulty: "medium",
-        hint: "Eliminate the conjunctions and chain the implications",
-        rules: ['→I', '→E', '∧E']
+        rules: ['\\to_i', '\\to_e', '\\wedge_e']
     }
 ];
 
-export const allRules: RuleType[] = ['→I', '→E', '∧I', '∧E', '∨I', '∨E', '¬I', '¬E', '⊥E', 'RAA'];
+export const allRules: RuleType[] = ['\\to_i', '\\to_e', '\\wedge_i', '\\wedge_e', '\\vee_i', '\\vee_e', '\\neg_i', '\\neg_e', '\\bot_e', '\\mathrm{raa}'];
 
 export function parseExercise(exercise: Exercise): ParsedExercise {
     return {

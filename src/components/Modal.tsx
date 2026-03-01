@@ -19,8 +19,8 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-xl p-6 max-w-md w-11/12 max-h-[80vh] overflow-y-auto shadow-2xl">
-        <h3 className="text-xl font-bold text-slate-800 mb-4">{title}</h3>
+      <div className="bg-white border-2 border-slate-200 dark:bg-slate-800 dark:border-2 dark:border-slate-700 rounded-xl p-6 max-w-md w-11/12 max-h-[80vh] overflow-y-auto shadow-2xl">
+        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">{title}</h3>
         {children}
       </div>
     </div>
@@ -89,7 +89,7 @@ export const FormulaInputModal: React.FC<FormulaInputModalProps> = ({
         onKeyDown={handleKeyDown}
       />
       <p className="text-sm text-slate-500 mt-2">
-        Syntax: Use -&gt; for →, &amp; for ∧, | for ∨, ! or ¬ for negation, bot or ⊥ for falsum
+        {t.customSequentSyntaxHelp}
       </p>
       <div className="flex gap-3 justify-end mt-4">
         <button className="modal-btn-cancel" onClick={onClose}>{t.cancel}</button>

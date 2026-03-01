@@ -10,6 +10,14 @@ const mathJaxConfig = {
     inlineMath: [['\\(', '\\)']],
     displayMath: [['\\[', '\\]']],
   },
+  options: {
+    enableMenu: false,
+    menuOptions: {
+      settings: {
+        explorer: false,
+      },
+    },
+  },
 };
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

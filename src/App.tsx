@@ -1,15 +1,14 @@
 // Main App component
 
-import React, { useState, useCallback, useRef } from 'react';
-import { Formula } from './formulas';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { Formula, FormulaParser } from './formulas';
 import { ProofTree, ProofResult, ProofNode } from './proof';
 import { Exercise, ParsedExercise, exercises, parseExercise } from './exercises';
 import { 
   ExerciseList, 
   FormulaInputModal, 
   ProofNodeDisplay,
-  RulePanel,
-  Latex
+  RulePanel
 } from './components';
 import { useLanguage, LanguageSelector } from './i18n';
 
@@ -32,6 +31,7 @@ interface ModalConfig {
 
 const App: React.FC = () => {
   const { t } = useLanguage();
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
   const [parsedExercise, setParsedExercise] = useState<ParsedExercise | null>(null);
   const [proofTree, setProofTree] = useState<ProofTree | null>(null);
@@ -39,7 +39,11 @@ const App: React.FC = () => {
   const [, setVersion] = useState(0); // Used to trigger re-renders
   const [message, setMessage] = useState<Message | null>(null);
   const [modalState, setModalState] = useState<ModalConfig | null>(null);
-  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [isRulesDrawerOpen, setIsRulesDrawerOpen] = useState(false);
+  const [showRuleTrees, setShowRuleTrees] = useState(true);
+  const [drawerWidth, setDrawerWidth] = useState(420);
+  const [isRulesDrawerResizing, setIsRulesDrawerResizing] = useState(false);
+  const desktopDrawerOffset = drawerWidth + 16;
 
   // Force re-render without losing the class instance
   const forceUpdate = useCallback(() => {
@@ -63,6 +67,34 @@ const App: React.FC = () => {
     setMessage(null);
   }, []);
 
+  const createCustomSequent = useCallback((goal: string, hypotheses: string[]) => {
+    try {
+      const customExercise: Exercise = {
+        id: Date.now(),
+        title: t.customSequentTitle,
+        goal,
+        hypotheses,
+        difficulty: 'medium',
+        rules: []
+      };
+
+      const parsed: ParsedExercise = {
+        ...customExercise,
+        goalFormula: FormulaParser.parse(goal),
+        hypothesesFormulas: hypotheses.map(h => FormulaParser.parse(h))
+      };
+
+      const tree = new ProofTree(parsed.goalFormula, parsed.hypothesesFormulas);
+      setCurrentExercise(customExercise);
+      setParsedExercise(parsed);
+      setProofTree(tree);
+      proofTreeRef.current = tree;
+      setMessage(null);
+    } catch (e) {
+      showMessage(`${t.invalidFormula}: ${(e as Error).message}`, 'error');
+    }
+  }, [showMessage, t]);
+
   const resetProof = useCallback(() => {
     if (parsedExercise) {
       const tree = new ProofTree(parsedExercise.goalFormula, parsedExercise.hypothesesFormulas);
@@ -78,6 +110,19 @@ const App: React.FC = () => {
     setProofTree(null);
     setMessage(null);
   }, []);
+
+  const goToNextExercise = useCallback(() => {
+    if (exercises.length === 0) return;
+
+    if (!currentExercise) {
+      selectExercise(exercises[0]);
+      return;
+    }
+
+    const currentIndex = exercises.findIndex(ex => ex.id === currentExercise.id);
+    const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % exercises.length : 0;
+    selectExercise(exercises[nextIndex]);
+  }, [currentExercise, selectExercise]);
 
   const undo = useCallback(() => {
     if (proofTree?.undo()) {
@@ -101,7 +146,7 @@ const App: React.FC = () => {
       setMessage(null);
       // Check completion
       if (proofTreeRef.current?.isComplete()) {
-        setShowCompletionModal(true);
+        showMessage(t.proofCompletedWithAxioms, 'success');
       }
     } else {
       showMessage(result.error || t.unknownError, 'error');
@@ -237,7 +282,7 @@ const App: React.FC = () => {
         break;
       
       case 'raa':
-        result = proofTree.applyRAA();
+        result = proofTree.applyraa();
         break;
       
       default:
@@ -248,48 +293,99 @@ const App: React.FC = () => {
     handleResult(result);
   }, [proofTree, showMessage, handleResult, t]);
 
+  const toggleDarkMode = useCallback(() => {
+    setIsDarkMode(prev => !prev);
+  }, []);
+
+  useEffect(() => {
+    if (!isRulesDrawerResizing) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const nextWidth = Math.min(620, Math.max(320, event.clientX));
+      setDrawerWidth(nextWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsRulesDrawerResizing(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isRulesDrawerResizing]);
+
   return (
-    <div className="min-h-screen bg-slate-100">
-      <header className="bg-gradient-to-r from-slate-800 to-blue-600 text-white py-8 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold mb-2">{t.appTitle}</h1>
-            <p className="text-lg opacity-90">{t.appSubtitle}</p>
+    <div className={`${isDarkMode ? 'dark' : ''} min-h-screen ${isDarkMode ? 'bg-slate-900 text-slate-100' : 'bg-slate-100 text-slate-800'}`}>
+      <header
+        className={`${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-gradient-to-r from-slate-800 to-blue-600 text-white'} sticky top-0 z-30 py-4 px-4 md:pl-[var(--drawer-offset)]`}
+        style={{ ['--drawer-offset' as string]: `${desktopDrawerOffset}px` } as React.CSSProperties}
+      >
+        <div className="max-w-[112rem] mx-auto flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-bold">Déduction Naturelle</h1>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={backToExercises}
+              title={t.home}
+              aria-label={t.home}
+              className={`${isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700' : 'bg-white/15 hover:bg-white/25 text-white border-white/30'} inline-flex items-center justify-center w-11 h-11 rounded-xl border-2 transition-colors`}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l9-9 9 9M4.5 10.5V21h15v-10.5" />
+              </svg>
+            </button>
+            <a
+              href="https://github.com/fortierq/dednat"
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t.github}
+              aria-label={t.github}
+              className={`${isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700' : 'bg-white/15 hover:bg-white/25 text-white border-white/30'} inline-flex items-center justify-center w-11 h-11 rounded-xl border-2 transition-colors`}
+            >
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.4 7.86 10.92.57.1.78-.25.78-.56 0-.28-.01-1.02-.01-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.7.08-.68.08-.68 1.15.08 1.75 1.18 1.75 1.18 1.02 1.74 2.67 1.24 3.32.95.1-.74.4-1.24.72-1.53-2.56-.3-5.25-1.28-5.25-5.71 0-1.26.45-2.28 1.18-3.08-.12-.3-.51-1.52.11-3.17 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.65.23 2.87.11 3.17.74.8 1.18 1.82 1.18 3.08 0 4.44-2.7 5.41-5.27 5.7.41.36.77 1.06.77 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.2.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
+              </svg>
+            </a>
+            <button
+              onClick={toggleDarkMode}
+              title={isDarkMode ? t.lightMode : t.darkMode}
+              aria-label={isDarkMode ? t.lightMode : t.darkMode}
+              className={`${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-slate-100 border-slate-600' : 'bg-white/15 hover:bg-white/25 text-white border-white/30'} inline-flex items-center justify-center w-11 h-11 rounded-xl border-2 transition-colors`}
+            >
+              {isDarkMode ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v2.25M12 18.75V21M3 12h2.25M18.75 12H21M5.64 5.64l1.59 1.59M16.77 16.77l1.59 1.59M5.64 18.36l1.59-1.59M16.77 7.23l1.59-1.59M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 0 1 11.21 3c0 .07-.01.14-.01.21A9 9 0 1 0 20.79 13c.07 0 .14-.01.21-.01Z" />
+                </svg>
+              )}
+            </button>
+            <LanguageSelector />
           </div>
-          <LanguageSelector />
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4 md:p-8">
+      <main
+        className="max-w-[112rem] mx-auto p-4 md:p-8 md:pl-[var(--drawer-offset)]"
+        style={{ ['--drawer-offset' as string]: `${desktopDrawerOffset}px` } as React.CSSProperties}
+      >
         {!currentExercise ? (
-          <ExerciseList exercises={exercises} onSelect={selectExercise} />
+          <ExerciseList
+            exercises={exercises}
+            onSelect={selectExercise}
+            onCreateCustomSequent={createCustomSequent}
+            drawerWidth={drawerWidth}
+            onDrawerWidthChange={setDrawerWidth}
+          />
         ) : (
           <>
-            {/* Exercise Info */}
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 mb-6 shadow-lg">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">{currentExercise.title}</h2>
-              <p className="text-slate-600 mb-4">{currentExercise.description}</p>
-              <div className="flex flex-wrap gap-4">
-                <div className="bg-white/50 rounded-lg px-4 py-2">
-                  <strong className="text-slate-700">{t.goal}:</strong>
-                  <span className="text-lg text-blue-600 font-semibold ml-2">
-                    <Latex math={parsedExercise?.goalFormula.toLatex() || ''} />
-                  </span>
-                </div>
-                <div className="bg-white/50 rounded-lg px-4 py-2">
-                  <strong className="text-slate-700">{t.hypotheses}:</strong>
-                  <span className="text-lg ml-2">
-                    {parsedExercise && parsedExercise.hypothesesFormulas.length > 0
-                      ? <Latex math={parsedExercise.hypothesesFormulas.map(h => h.toLatex()).join(', ')} />
-                      : t.none}
-                  </span>
-                </div>
-              </div>
-            </div>
-
             {/* Proof Tree */}
-            <div className="bg-white rounded-xl p-6 mb-6 shadow-lg min-h-[400px] overflow-x-auto">
-              <h3 className="text-xl font-bold text-slate-800 mb-4">{t.proofTree}</h3>
+            <div className={`${isDarkMode ? 'bg-slate-800 border-2 border-slate-700' : 'bg-white border-2 border-slate-200'} rounded-xl p-6 mb-6 shadow-lg min-h-[400px] overflow-x-auto`}>
               <div className="flex justify-center p-4">
                 {proofTree && (
                   <ProofNodeDisplay
@@ -301,29 +397,61 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Rule Panel */}
-            <RulePanel onRuleClick={applyRule} />
-
             {/* Controls */}
-            <div className="flex flex-wrap gap-4 mb-6">
-              <button 
-                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow-md transition-all hover:-translate-y-0.5"
-                onClick={resetProof}
-              >
-                {t.resetProof}
-              </button>
-              <button 
-                className="px-6 py-3 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg shadow-md transition-all hover:-translate-y-0.5"
-                onClick={backToExercises}
-              >
-                {t.backToExercises}
-              </button>
-              <button 
-                className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition-all hover:-translate-y-0.5"
-                onClick={undo}
-              >
-                {t.undo}
-              </button>
+            <div className="mb-6">
+              <div className="flex flex-wrap justify-center gap-4 md:hidden">
+                <button
+                  className="px-4 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500 inline-flex items-center justify-center"
+                  onClick={() => setIsRulesDrawerOpen(true)}
+                  aria-label={t.inferenceRules}
+                  title={t.inferenceRules}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <button 
+                  className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                  onClick={resetProof}
+                >
+                  {t.resetProof}
+                </button>
+                <button 
+                  className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                  onClick={undo}
+                >
+                  {t.undo}
+                </button>
+                <button
+                  className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                  onClick={goToNextExercise}
+                >
+                  {t.nextExercise}
+                </button>
+              </div>
+
+              <div className="hidden md:flex md:flex-wrap md:justify-center md:gap-4">
+                <div className="flex flex-wrap justify-center gap-4">
+                  <button 
+                    className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                    onClick={resetProof}
+                  >
+                    {t.resetProof}
+                  </button>
+                  <button 
+                    className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                    onClick={undo}
+                  >
+                    {t.undo}
+                  </button>
+                  <button
+                    className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                    onClick={goToNextExercise}
+                  >
+                    {t.nextExercise}
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Message Area */}
@@ -332,13 +460,72 @@ const App: React.FC = () => {
                 message.type === 'success' ? 'bg-green-100 border-2 border-green-500 text-green-800' :
                 message.type === 'error' ? 'bg-red-100 border-2 border-red-500 text-red-800' :
                 'bg-blue-100 border-2 border-blue-500 text-blue-800'
-              } ${message.type === 'success' ? 'animate-pulse' : ''}`}>
+              } ${isDarkMode ? 'dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100' : ''} ${message.type === 'success' ? 'animate-pulse' : ''}`}>
                 {message.text}
               </div>
             )}
           </>
         )}
       </main>
+
+      {currentExercise && (
+        <>
+          <div
+            className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 md:hidden ${
+              isRulesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+            onClick={() => setIsRulesDrawerOpen(false)}
+          />
+
+          <aside
+            className={`fixed top-0 left-0 h-full bg-white dark:bg-slate-900 dark:border-r dark:border-slate-700 shadow-2xl z-40 transform transition-transform duration-300 ease-out md:translate-x-0 ${
+              isRulesDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+            style={{ width: `${drawerWidth}px` }}
+          >
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 md:hidden">
+                <div className="w-6" aria-hidden="true" />
+                <button
+                  onClick={() => setIsRulesDrawerOpen(false)}
+                  className="p-2 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  aria-label={t.cancel}
+                  title={t.cancel}
+                >
+                  <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <label className="px-3 pt-3 flex items-center justify-center gap-2 mb-4 text-sm text-slate-700 dark:text-slate-200">
+                <input
+                  type="checkbox"
+                  checked={showRuleTrees}
+                  onChange={(e) => setShowRuleTrees(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <span>{t.showRuleTrees}</span>
+              </label>
+
+              <RulePanel
+                onRuleClick={applyRule}
+                className="mb-0 shadow-none w-full flex-1 overflow-y-auto px-3 pb-3"
+                compact
+                showRuleTrees={showRuleTrees}
+              />
+            </div>
+
+            <div
+              className="absolute top-0 right-0 h-full w-2 cursor-col-resize hidden md:block"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setIsRulesDrawerResizing(true);
+              }}
+            />
+          </aside>
+        </>
+      )}
 
       {/* Formula Input Modal */}
       {modalState && (
@@ -351,46 +538,6 @@ const App: React.FC = () => {
           onSubmit={handleModalSubmit}
           onError={(msg) => showMessage(msg, 'error')}
         />
-      )}
-
-      {/* Completion Modal */}
-      {showCompletionModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-11/12 shadow-2xl text-center transform animate-bounce-in">
-            <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-3xl font-bold text-green-600 mb-2">{t.proofComplete}</h2>
-            <p className="text-slate-600 mb-6">
-              {t.congratulations}
-            </p>
-            <div className="bg-green-50 rounded-lg p-4 mb-6">
-              <span className="text-xl text-green-700">
-                <Latex math={
-                  (parsedExercise?.hypothesesFormulas.length 
-                    ? parsedExercise.hypothesesFormulas.map(h => h.toLatex()).join(', ') + ' \\vdash '
-                    : '\\vdash ') +
-                  (parsedExercise?.goalFormula.toLatex() || '')
-                } />
-              </span>
-            </div>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => {
-                  setShowCompletionModal(false);
-                  backToExercises();
-                }}
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
-              >
-                {t.chooseAnotherExercise}
-              </button>
-              <button
-                onClick={() => setShowCompletionModal(false)}
-                className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition-colors"
-              >
-                {t.viewProof}
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

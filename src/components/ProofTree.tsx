@@ -1,9 +1,25 @@
 // Proof tree display component with proper inference lines
 
 import React, { useRef, useEffect, useState } from 'react';
-import { ProofNode, DischargedPair } from '../proof';
+import { ProofNode, RuleName } from '../proof';
 import { Formula } from '../formulas';
 import { Latex } from './Latex';
+
+const ruleLabelLatexByRule: Record<RuleName, string> = {
+  'axiom': '\\mathrm{ax}',
+  '→I': '\\to_{i}',
+  '→E': '\\to_{e}',
+  '∧I': '\\wedge_{i}',
+  '∧E₁': '\\wedge_{e}^{1}',
+  '∧E₂': '\\wedge_{e}^{2}',
+  '∨I₁': '\\vee_{i}^{1}',
+  '∨I₂': '\\vee_{i}^{2}',
+  '∨E': '\\vee_{e}',
+  '¬I': '\\neg_{i}',
+  '¬E': '\\neg_{e}',
+  '⊥E': '\\bot_{e}',
+  'raa': '\\mathrm{raa}',
+};
 
 interface ProofNodeDisplayProps {
   node: ProofNode;
@@ -61,18 +77,9 @@ export const ProofNodeDisplay: React.FC<ProofNodeDisplayProps> = ({ node, select
   }, [node.premises, node.sequent]);
 
   const getRuleLabel = () => {
-    if (!node.rule) return { text: '', latex: '' };
-    let label = node.rule;
-    let latexPart = '';
-    if (node.dischargedAssumption) {
-      if ('left' in node.dischargedAssumption) {
-        const pair = node.dischargedAssumption as DischargedPair;
-        latexPart = `[${pair.left.toLatex()}, ${pair.right.toLatex()}]`;
-      } else {
-        latexPart = `[${node.dischargedAssumption.formula.toLatex()}]`;
-      }
-    }
-    return { text: label, latex: latexPart };
+    if (!node.rule) return { ruleLatex: '' };
+    const ruleLatex = ruleLabelLatexByRule[node.rule] ?? `\\mathrm{${node.rule}}`;
+    return { ruleLatex };
   };
 
   const ruleLabel = getRuleLabel();
@@ -95,15 +102,18 @@ export const ProofNodeDisplay: React.FC<ProofNodeDisplayProps> = ({ node, select
 
       {/* Inference line */}
       {node.rule && (
-        <div className="node-line-container flex items-center justify-center my-1">
-          <div 
-            className="h-0.5 bg-slate-700" 
-            style={{ width: `${lineWidth}px`, minWidth: '80px' }}
-          />
-          <span className="text-xs text-blue-600 font-bold ml-2 whitespace-nowrap">
-            {ruleLabel.text}
-            {ruleLabel.latex && <Latex math={ruleLabel.latex} />}
-          </span>
+        <div className="node-line-container">
+          <div className="flex justify-center">
+            <div className="relative inline-flex items-center">
+              <div 
+                className="h-px bg-slate-700 dark:bg-slate-300" 
+                style={{ width: `${lineWidth}px`, minWidth: '110px' }}
+              />
+              <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 text-sm text-slate-900 dark:text-slate-100 font-bold whitespace-nowrap">
+                <Latex math={ruleLabel.ruleLatex} />
+              </span>
+            </div>
+          </div>
         </div>
       )}
 

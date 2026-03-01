@@ -9,7 +9,7 @@ export type RuleName =
     | '∧I' | '∧E₁' | '∧E₂'
     | '∨I₁' | '∨I₂' | '∨E'
     | '¬I' | '¬E'
-    | '⊥E' | 'RAA';
+    | '⊥E' | 'raa';
 
 export interface DischargedAssumption {
     formula: Formula;
@@ -400,7 +400,7 @@ export class ProofTree {
         return { success: true };
     }
 
-    applyRAA(): ProofResult {
+    applyraa(): ProofResult {
         if (!this.selectedNode) return { success: false, error: 'No goal selected' };
         
         const node = this.selectedNode;
@@ -410,7 +410,7 @@ export class ProofTree {
         const newSequent = node.sequent.addToContext(negGoal).withGoal(Formula.bottom());
         
         const premise = new ProofNode(newSequent);
-        node.rule = 'RAA';
+        node.rule = 'raa';
         node.premises = [premise];
         node.dischargedAssumption = { formula: negGoal };
         

@@ -128,11 +128,11 @@ export const AbsurdRule: React.FC = () => (
   />
 );
 
-export const RAARule: React.FC = () => (
+export const raaRule: React.FC = () => (
   <RuleTree
     premises={[<Latex key="p" math="[\neg A]^1 \vdots \bot" />]}
     conclusion={<Latex math="A" />}
-    ruleName="RAA"
+    ruleName="raa"
     discharged="1"
   />
 );
@@ -158,6 +158,6 @@ export const ruleDisplays: Record<string, React.FC> = {
   'neg-intro': NegIntroRule,
   'neg-elim': NegElimRule,
   'absurd': AbsurdRule,
-  'raa': RAARule,
+  'raa': raaRule,
   'axiom': AxiomRule,
 };

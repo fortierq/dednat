@@ -1,10 +1,11 @@
 // Exercise list and card components
 
-import React, { useState, useMemo } from 'react';
-import { Exercise, RuleType, allRules } from '../exercises';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Exercise, RuleType } from '../exercises';
 import { FormulaParser } from '../formulas';
 import { useLanguage } from '../i18n';
 import { Latex } from './Latex';
+import { Modal } from './Modal';
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -33,21 +34,14 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, onClick }) => {
 
   return (
     <div className="exercise-card" onClick={onClick}>
-      <h4 className="font-bold text-slate-800 mb-2">{exercise.title}</h4>
-      <p className="text-slate-600 text-sm mb-2">{exercise.description}</p>
-      <div className="text-lg text-blue-600 mb-3">
-        <Latex math={getGoalLatex()} />
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-lg text-slate-900 dark:text-slate-100 min-w-0">
+          <Latex math={getGoalLatex()} />
+        </div>
+        <span className={`difficulty-badge ${exercise.difficulty} shrink-0`}>
+          {difficultyLabel}
+        </span>
       </div>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {exercise.rules.map(rule => (
-          <span key={rule} className="text-xs px-2 py-0.5 bg-slate-200 text-slate-600 rounded font-math">
-            {rule}
-          </span>
-        ))}
-      </div>
-      <span className={`difficulty-badge ${exercise.difficulty}`}>
-        {difficultyLabel.replace(/^[🌱🌿🌳]\s*/, '')}
-      </span>
     </div>
   );
 };
@@ -55,59 +49,102 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, onClick }) => {
 interface FilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenCustomSequent: () => void;
+  onShuffleExercises: () => void;
   selectedDifficulties: Set<string>;
-  selectedRules: Set<RuleType>;
+  selectedOperators: Set<OperatorFilter>;
   onDifficultyToggle: (diff: string) => void;
-  onRuleToggle: (rule: RuleType) => void;
+  onOperatorToggle: (operator: OperatorFilter) => void;
   onClearFilters: () => void;
   exerciseCount: number;
   totalCount: number;
+  drawerWidth: number;
+  onDrawerWidthChange: (width: number) => void;
 }
+
+type OperatorFilter = '→' | '∧' | '∨' | '¬' | '⊥' | 'raa';
+
+const operatorOptions: OperatorFilter[] = ['→', '∧', '∨', '¬', '⊥', 'raa'];
+const difficultyOptions = ['easy', 'medium', 'hard'];
+
+const mapRuleToOperator = (rule: RuleType): OperatorFilter => {
+  if (rule.startsWith('\\to')) return '→';
+  if (rule.startsWith('\\wedge')) return '∧';
+  if (rule.startsWith('\\vee')) return '∨';
+  if (rule.startsWith('\\neg')) return '¬';
+  if (rule === '\\bot_e') return '⊥';
+  return 'raa';
+};
 
 const FilterDrawer: React.FC<FilterDrawerProps> = ({
   isOpen,
   onClose,
+  onOpenCustomSequent,
+  onShuffleExercises,
   selectedDifficulties,
-  selectedRules,
+  selectedOperators,
   onDifficultyToggle,
-  onRuleToggle,
+  onOperatorToggle,
   onClearFilters,
   exerciseCount,
-  totalCount
+  totalCount,
+  drawerWidth,
+  onDrawerWidthChange
 }) => {
   const { t } = useLanguage();
-  const difficulties = ['easy', 'medium', 'hard'];
+  const [isDrawerResizing, setIsDrawerResizing] = useState(false);
   const difficultyLabels: Record<string, string> = {
     easy: t.easy,
     medium: t.medium,
     hard: t.hard
   };
 
-  const activeFilterCount = selectedDifficulties.size + selectedRules.size;
+  const activeFilterCount = selectedDifficulties.size + selectedOperators.size;
+
+  useEffect(() => {
+    if (!isDrawerResizing) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const nextWidth = Math.min(620, Math.max(320, event.clientX));
+      onDrawerWidthChange(nextWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsDrawerResizing(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDrawerResizing, onDrawerWidthChange]);
 
   return (
     <>
       {/* Backdrop */}
       <div 
-        className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 md:hidden ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
       />
       
       {/* Drawer */}
-      <div className={`fixed top-0 left-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out ${
+      <div className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 dark:border-r-2 dark:border-slate-700 shadow-2xl z-40 transform transition-transform duration-300 ease-out md:translate-x-0 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      }`} style={{ width: `${drawerWidth}px` }}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-200">
-            <h3 className="text-lg font-bold text-slate-800">{t.filters}</h3>
+          <div className="relative flex items-center justify-center p-4 border-b-2 border-slate-200 dark:border-slate-700">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 text-center">{t.filters}</h3>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              className="absolute right-4 p-2 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors md:hidden"
             >
-              <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -115,22 +152,23 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
           
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-4">
+
             {/* Difficulty Filter */}
-            <div className="mb-6">
-              <h4 className="font-semibold text-slate-700 mb-3 text-sm uppercase tracking-wide">
+            <div className="mb-6 w-full">
+              <h4 className="font-semibold text-slate-700 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide text-center">
                 {t.difficulty}
               </h4>
               <div className="space-y-2">
-                {difficulties.map(diff => (
-                  <label key={diff} className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50">
+                {difficultyOptions.map(diff => (
+                  <label key={diff} className="flex items-center justify-start gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                     <input
                       type="checkbox"
                       checked={selectedDifficulties.has(diff)}
                       onChange={() => onDifficultyToggle(diff)}
                       className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    <span className={`text-sm group-hover:text-blue-600 transition-colors ${
-                      selectedDifficulties.has(diff) ? 'text-blue-600 font-medium' : 'text-slate-600'
+                    <span className={`text-sm group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors ${
+                      selectedDifficulties.has(diff) ? 'text-slate-900 dark:text-slate-100 font-medium' : 'text-slate-900 dark:text-slate-100'
                     }`}>
                       {difficultyLabels[diff]}
                     </span>
@@ -139,24 +177,26 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
               </div>
             </div>
 
-            {/* Rules Filter */}
-            <div className="mb-6">
-              <h4 className="font-semibold text-slate-700 mb-3 text-sm uppercase tracking-wide">
+            <hr className="w-full mb-6 border-t-2 border-slate-200 dark:border-slate-700" />
+
+            {/* Operator Filter */}
+            <div className="mb-6 w-full">
+              <h4 className="font-semibold text-slate-700 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide text-center">
                 {t.rulesUsed}
               </h4>
-              <div className="space-y-2">
-                {allRules.map(rule => (
-                  <label key={rule} className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50">
+              <div className="grid grid-cols-2 gap-2">
+                {operatorOptions.map(operator => (
+                  <label key={operator} className="flex items-center justify-start gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                     <input
                       type="checkbox"
-                      checked={selectedRules.has(rule)}
-                      onChange={() => onRuleToggle(rule)}
+                      checked={selectedOperators.has(operator)}
+                      onChange={() => onOperatorToggle(operator)}
                       className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    <span className={`text-sm font-math group-hover:text-blue-600 transition-colors ${
-                      selectedRules.has(rule) ? 'text-blue-600 font-medium' : 'text-slate-600'
+                    <span className={`text-sm font-math group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors ${
+                      selectedOperators.has(operator) ? 'text-slate-900 dark:text-slate-100 font-medium' : 'text-slate-900 dark:text-slate-100'
                     }`}>
-                      {rule}
+                      {operator}
                     </span>
                   </label>
                 ))}
@@ -165,20 +205,42 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-slate-200 space-y-3">
+          <div className="p-4 border-t-2 border-slate-200 dark:border-slate-700 space-y-3">
+            <button
+              onClick={onOpenCustomSequent}
+              className="w-full px-4 py-2 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+            >
+              {t.customSequent}
+            </button>
+            <button
+              onClick={onShuffleExercises}
+              aria-label={t.randomExercise}
+              title={t.randomExercise}
+              className="w-full px-4 py-2 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+            >
+              {t.randomExercise}
+            </button>
             <button
               onClick={onClearFilters}
-              className="w-full px-4 py-2 text-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-slate-200"
+              className="w-full px-4 py-2 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
             >
               {t.clearAllFilters} {activeFilterCount > 0 && `(${activeFilterCount})`}
             </button>
             <div className="text-center">
-              <span className="text-sm text-slate-500">
+              <span className="text-sm text-slate-500 dark:text-slate-100">
                 {t.showingExercises(exerciseCount, totalCount)}
               </span>
             </div>
           </div>
         </div>
+
+        <div
+          className="absolute top-0 right-0 h-full w-2 cursor-col-resize hidden md:block"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setIsDrawerResizing(true);
+          }}
+        />
       </div>
     </>
   );
@@ -187,13 +249,26 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
 interface ExerciseListProps {
   exercises: Exercise[];
   onSelect: (exercise: Exercise) => void;
+  onCreateCustomSequent: (goal: string, hypotheses: string[]) => void;
+  drawerWidth: number;
+  onDrawerWidthChange: (width: number) => void;
 }
 
-export const ExerciseList: React.FC<ExerciseListProps> = ({ exercises, onSelect }) => {
+export const ExerciseList: React.FC<ExerciseListProps> = ({
+  exercises,
+  onSelect,
+  onCreateCustomSequent,
+  drawerWidth,
+  onDrawerWidthChange
+}) => {
   const { t } = useLanguage();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedDifficulties, setSelectedDifficulties] = useState<Set<string>>(new Set());
-  const [selectedRules, setSelectedRules] = useState<Set<RuleType>>(new Set());
+  const [selectedDifficulties, setSelectedDifficulties] = useState<Set<string>>(new Set(difficultyOptions));
+  const [selectedOperators, setSelectedOperators] = useState<Set<OperatorFilter>>(new Set(operatorOptions));
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [customGoal, setCustomGoal] = useState('');
+  const [customHypotheses, setCustomHypotheses] = useState('');
+  const [shuffledExercises, setShuffledExercises] = useState<Exercise[] | null>(null);
 
   const filteredExercises = useMemo(() => {
     return exercises.filter(ex => {
@@ -202,12 +277,18 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({ exercises, onSelect 
         return false;
       }
       // Filter by rules (exercise must use at least one selected rule)
-      if (selectedRules.size > 0 && !ex.rules.some(r => selectedRules.has(r))) {
+      if (selectedOperators.size > 0 && !ex.rules.some(r => selectedOperators.has(mapRuleToOperator(r)))) {
         return false;
       }
       return true;
     });
-  }, [exercises, selectedDifficulties, selectedRules]);
+  }, [exercises, selectedDifficulties, selectedOperators]);
+
+  useEffect(() => {
+    setShuffledExercises(null);
+  }, [exercises, selectedDifficulties, selectedOperators]);
+
+  const displayedExercises = shuffledExercises ?? filteredExercises;
 
   const handleDifficultyToggle = (diff: string) => {
     setSelectedDifficulties(prev => {
@@ -221,13 +302,13 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({ exercises, onSelect 
     });
   };
 
-  const handleRuleToggle = (rule: RuleType) => {
-    setSelectedRules(prev => {
+  const handleOperatorToggle = (operator: OperatorFilter) => {
+    setSelectedOperators(prev => {
       const next = new Set(prev);
-      if (next.has(rule)) {
-        next.delete(rule);
+      if (next.has(operator)) {
+        next.delete(operator);
       } else {
-        next.add(rule);
+        next.add(operator);
       }
       return next;
     });
@@ -235,50 +316,114 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({ exercises, onSelect 
 
   const handleClearFilters = () => {
     setSelectedDifficulties(new Set());
-    setSelectedRules(new Set());
+    setSelectedOperators(new Set());
   };
 
-  const activeFilterCount = selectedDifficulties.size + selectedRules.size;
+  const activeFilterCount = selectedDifficulties.size + selectedOperators.size;
+
+  const handleCreateCustomSequent = () => {
+    const goal = customGoal.trim();
+    if (!goal) return;
+
+    const hypotheses = customHypotheses
+      .split(',')
+      .map(h => h.trim())
+      .filter(Boolean);
+
+    onCreateCustomSequent(goal, hypotheses);
+    setIsCustomModalOpen(false);
+    setCustomGoal('');
+    setCustomHypotheses('');
+  };
+
+  const handleShuffleExercises = () => {
+    if (filteredExercises.length === 0) return;
+    const shuffled = [...filteredExercises];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    setShuffledExercises(shuffled);
+    onSelect(shuffled[0]);
+  };
 
   return (
     <section className="mb-8">
-      <div className="flex items-center justify-between border-b-2 border-blue-500 pb-2 mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">
-          {t.selectExercise}
-        </h2>
-        <button
-          onClick={() => setIsDrawerOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 rounded-lg shadow-sm border border-slate-200 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-          </svg>
-          <span>{t.filters}</span>
-          {activeFilterCount > 0 && (
-            <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-slate-900 hover:text-blue-700 hover:bg-blue-50 rounded-lg shadow-sm border-2 border-slate-200 hover:border-blue-500 transition-colors md:hidden"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <span>{t.filters}</span>
+            {activeFilterCount > 0 && (
+              <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
+
+      <Modal
+        isOpen={isCustomModalOpen}
+        onClose={() => setIsCustomModalOpen(false)}
+        title={t.customSequentModalTitle}
+      >
+        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{t.customSequentModalDescription}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">{t.customSequentSyntaxHelp}</p>
+        <label className="block text-slate-700 dark:text-slate-200 mb-2">{t.hypotheses}</label>
+        <input
+          type="text"
+          className="modal-input mb-4"
+          value={customHypotheses}
+          onChange={(e) => setCustomHypotheses(e.target.value)}
+          placeholder={t.customHypothesesPlaceholder}
+        />
+        <label className="block text-slate-700 dark:text-slate-200 mb-2">{t.goal}</label>
+        <input
+          type="text"
+          className="modal-input"
+          value={customGoal}
+          onChange={(e) => setCustomGoal(e.target.value)}
+          placeholder={t.customGoalPlaceholder}
+        />
+        <div className="flex gap-3 justify-end mt-4">
+          <button className="modal-btn-cancel" onClick={() => setIsCustomModalOpen(false)}>{t.cancel}</button>
+          <button
+            className="modal-btn-confirm disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleCreateCustomSequent}
+            disabled={!customGoal.trim()}
+          >
+            {t.startProof}
+          </button>
+        </div>
+      </Modal>
 
       {/* Filter Drawer */}
       <FilterDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
+        onOpenCustomSequent={() => setIsCustomModalOpen(true)}
+        onShuffleExercises={handleShuffleExercises}
         selectedDifficulties={selectedDifficulties}
-        selectedRules={selectedRules}
+        selectedOperators={selectedOperators}
         onDifficultyToggle={handleDifficultyToggle}
-        onRuleToggle={handleRuleToggle}
+        onOperatorToggle={handleOperatorToggle}
         onClearFilters={handleClearFilters}
         exerciseCount={filteredExercises.length}
         totalCount={exercises.length}
+        drawerWidth={drawerWidth}
+        onDrawerWidthChange={onDrawerWidthChange}
       />
 
       {/* Exercise Grid */}
       {filteredExercises.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredExercises.map(exercise => (
+        <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+          {displayedExercises.map(exercise => (
             <ExerciseCard 
               key={exercise.id} 
               exercise={exercise} 
@@ -287,11 +432,11 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({ exercises, onSelect 
           ))}     
         </div>
       ) : (
-        <div className="bg-white rounded-xl p-8 text-center shadow-lg">
-          <p className="text-slate-500 text-lg">{t.noExercisesMatch}</p>
+        <div className="bg-white border-2 border-slate-200 dark:bg-slate-800 dark:border-2 dark:border-slate-700 rounded-xl p-8 text-center shadow-lg">
+          <p className="text-slate-500 dark:text-slate-300 text-lg">{t.noExercisesMatch}</p>
           <button
             onClick={handleClearFilters}
-            className="mt-4 text-blue-600 hover:underline"
+            className="mt-4 px-4 py-2 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
           >
             {t.clearFilters}
           </button>
