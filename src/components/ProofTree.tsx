@@ -47,8 +47,15 @@ const SequentDisplay: React.FC<{
   const sequentLatex = `${contextLatex}\\vdash ${goal.toLatex()}`;
 
   return (
-    <div className={className} onClick={onClick}>
-      <Latex math={sequentLatex} />
+    <div
+      className={className}
+      onPointerDown={(e) => e.preventDefault()}
+      onMouseDown={(e) => e.preventDefault()}
+      onDoubleClick={(e) => e.preventDefault()}
+      onDragStart={(e) => e.preventDefault()}
+      onClick={onClick}
+    >
+      <Latex math={sequentLatex} className="select-none" />
     </div>
   );
 };

@@ -325,7 +325,7 @@ const App: React.FC = () => {
         style={{ ['--drawer-offset' as string]: `${desktopDrawerOffset}px` } as React.CSSProperties}
       >
         <div className="max-w-[112rem] mx-auto flex items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold">Déduction Naturelle</h1>
+          <h1 className="text-3xl font-bold">{t.appTitle}</h1>
           <div className="flex items-center gap-2">
             <button
               onClick={backToExercises}

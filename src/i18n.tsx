@@ -108,7 +108,7 @@ interface Translations {
 const translations: Record<Language, Translations> = {
   fr: {
     // Header
-    appTitle: 'Déduction Naturelle - Arbres de Preuve',
+    appTitle: 'Exercices de Déduction Naturelle',
     appSubtitle: 'Apprenez la logique propositionnelle par la construction interactive de preuves',
     home: 'Accueil',
     github: 'GitHub',
@@ -149,7 +149,7 @@ const translations: Record<Language, Translations> = {
 
     // Rule panel
     inferenceRules: 'Règles d\'inférence',
-    showRuleTrees: 'Afficher les arbres de règles',
+    showRuleTrees: 'Afficher les règles',
     introductionRules: 'Introduction',
     eliminationRules: 'Élimination',
     otherRules: 'Autres règles',
@@ -208,7 +208,7 @@ const translations: Record<Language, Translations> = {
   },
   en: {
     // Header
-    appTitle: 'Natural Deduction Proof Tree Builder',
+    appTitle: 'Natural Deduction Exercises',
     appSubtitle: 'Learn propositional logic through interactive proof construction',
     home: 'Home',
     github: 'GitHub',

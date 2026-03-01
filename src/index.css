@@ -43,6 +43,19 @@
     @apply inline-flex flex-col items-center select-none;
   }
 
+  .proof-node,
+  .proof-node *,
+  .proof-node mjx-container,
+  .proof-node mjx-container * {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .proof-node mjx-container,
+  .proof-node mjx-container * {
+    pointer-events: none;
+  }
+
   .node-premises {
     @apply flex justify-center items-end gap-8;
   }
@@ -53,6 +66,14 @@
 
   .node-sequent {
     @apply font-math text-base px-4 py-2 rounded cursor-pointer whitespace-nowrap select-none;
+  }
+
+  .node-sequent,
+  .node-sequent *,
+  .node-sequent mjx-container,
+  .node-sequent mjx-container * {
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .node-sequent.open-goal {
