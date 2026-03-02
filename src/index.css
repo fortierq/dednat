@@ -94,9 +94,9 @@
 
   /* Exercise cards */
   .exercise-card {
-    @apply bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-200 
+      @apply bg-white border-2 border-slate-200 
            rounded-lg p-3 sm:p-4 cursor-pointer w-full text-left
-           transition-all duration-200 hover:border-blue-500 hover:from-blue-50 hover:to-blue-100
+        transition-all duration-200 hover:border-blue-500 hover:bg-blue-50
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2
            active:scale-[0.99];
   }
@@ -201,7 +201,7 @@
   }
 
   .dark .exercise-card {
-    @apply from-slate-800 to-slate-900 border-slate-700 hover:border-blue-400 hover:from-slate-700 hover:to-slate-800;
+    @apply bg-slate-800 border-slate-700 hover:border-slate-500 hover:bg-slate-700;
   }
 
   .dark .exercise-card h4 {

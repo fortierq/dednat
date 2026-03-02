@@ -214,7 +214,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
           <div className="p-4 border-t-2 border-slate-200 dark:border-slate-700 space-y-3">
             <button
               onClick={onOpenCustomSequent}
-              className="w-full px-4 py-2 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+              className="w-full px-4 py-2 bg-white dark:bg-slate-800 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
             >
               {t.customSequent}
             </button>
@@ -222,13 +222,13 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
               onClick={onShuffleExercises}
               aria-label={t.randomExercise}
               title={t.randomExercise}
-              className="w-full px-4 py-2 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+              className="w-full px-4 py-2 bg-white dark:bg-slate-800 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
             >
               {t.randomExercise}
             </button>
             <button
               onClick={onClearFilters}
-              className="w-full px-4 py-2 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+              className="w-full px-4 py-2 bg-white dark:bg-slate-800 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
             >
               {t.clearAllFilters} {activeFilterCount > 0 && `(${activeFilterCount})`}
             </button>
@@ -258,6 +258,7 @@ interface ExerciseListProps {
   onCreateCustomSequent: (goal: string, hypotheses: string[]) => void;
   drawerWidth: number;
   onDrawerWidthChange: (width: number) => void;
+  openDrawerSignal: number;
 }
 
 export const ExerciseList: React.FC<ExerciseListProps> = ({
@@ -265,7 +266,8 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
   onSelect,
   onCreateCustomSequent,
   drawerWidth,
-  onDrawerWidthChange
+  onDrawerWidthChange,
+  openDrawerSignal
 }) => {
   const { t } = useLanguage();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -293,6 +295,12 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
   useEffect(() => {
     setShuffledExercises(null);
   }, [exercises, selectedDifficulties, selectedOperators]);
+
+  useEffect(() => {
+    if (openDrawerSignal > 0) {
+      setIsDrawerOpen(true);
+    }
+  }, [openDrawerSignal]);
 
   const displayedExercises = shuffledExercises ?? filteredExercises;
 
@@ -325,8 +333,6 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
     setSelectedOperators(new Set());
   };
 
-  const activeFilterCount = selectedDifficulties.size + selectedOperators.size;
-
   const handleCreateCustomSequent = () => {
     const goal = customGoal.trim();
     if (!goal) return;
@@ -355,25 +361,6 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
 
   return (
     <section className="mb-8">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsDrawerOpen(true)}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white text-slate-900 hover:text-blue-700 hover:bg-blue-50 rounded-lg shadow-sm border-2 border-slate-200 hover:border-blue-500 transition-colors md:hidden"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            <span>{t.filters}</span>
-            {activeFilterCount > 0 && (
-              <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-        </div>
-      </div>
-
       <Modal
         isOpen={isCustomModalOpen}
         onClose={() => setIsCustomModalOpen(false)}

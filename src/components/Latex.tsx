@@ -12,7 +12,7 @@ interface LatexProps {
 export const Latex: React.FC<LatexProps> = ({ math, inline = true, className = '' }) => {
   const formula = inline ? `\\(${math}\\)` : `\\[${math}\\]`;
   return (
-    <MathJax className={className} inline={inline}>
+    <MathJax className={className} inline={inline} dynamic>
       {formula}
     </MathJax>
   );

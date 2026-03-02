@@ -59,6 +59,7 @@ const App: React.FC = () => {
   const [message, setMessage] = useState<Message | null>(null);
   const [modalState, setModalState] = useState<ModalConfig | null>(null);
   const [isRulesDrawerOpen, setIsRulesDrawerOpen] = useState(false);
+  const [openFiltersSignal, setOpenFiltersSignal] = useState(0);
   const [showRuleTrees, setShowRuleTrees] = useState(true);
   const [drawerWidth, setDrawerWidth] = useState(420);
   const [isRulesDrawerResizing, setIsRulesDrawerResizing] = useState(false);
@@ -361,7 +362,7 @@ const App: React.FC = () => {
   return (
     <div className={`${isDarkMode ? 'dark' : ''} min-h-screen ${isDarkMode ? 'bg-slate-900 text-slate-100' : 'bg-slate-100 text-slate-800'}`}>
       <header
-        className={`${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-gradient-to-r from-slate-800 to-blue-600 text-white'} sticky top-0 z-30 py-3 px-3 sm:py-4 sm:px-4 md:pl-[var(--drawer-offset)]`}
+        className={`${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-blue-900 text-white'} sticky top-0 z-30 py-3 px-3 sm:py-4 sm:px-4 md:pl-[var(--drawer-offset)]`}
         style={{ ['--drawer-offset' as string]: `${desktopDrawerOffset}px` } as React.CSSProperties}
       >
         <div className="max-w-[112rem] mx-auto flex items-center justify-between gap-2 sm:gap-4">
@@ -375,6 +376,22 @@ const App: React.FC = () => {
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l9-9 9 9M4.5 10.5V21h15v-10.5" />
+              </svg>
+            </button>
+            <button
+              onClick={() => {
+                if (currentExercise) {
+                  setIsRulesDrawerOpen(true);
+                } else {
+                  setOpenFiltersSignal(v => v + 1);
+                }
+              }}
+              title={currentExercise ? t.inferenceRules : t.filters}
+              aria-label={currentExercise ? t.inferenceRules : t.filters}
+              className={`${isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700' : 'bg-white/15 hover:bg-white/25 text-white border-white/30'} inline-flex items-center justify-center w-11 h-11 rounded-xl border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:hidden`}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
             <a
@@ -421,6 +438,7 @@ const App: React.FC = () => {
             onCreateCustomSequent={createCustomSequent}
             drawerWidth={drawerWidth}
             onDrawerWidthChange={setDrawerWidth}
+            openDrawerSignal={openFiltersSignal}
           />
         ) : (
           <>
@@ -440,30 +458,20 @@ const App: React.FC = () => {
             {/* Controls */}
             <div className="mb-6">
               <div className="grid grid-cols-2 gap-2 sm:gap-3 md:hidden">
-                <button
-                  className="px-4 py-2.5 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500 inline-flex items-center justify-center"
-                  onClick={() => setIsRulesDrawerOpen(true)}
-                  aria-label={t.inferenceRules}
-                  title={t.inferenceRules}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
                 <button 
-                  className="px-4 py-2.5 text-sm sm:text-base text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                  className="px-4 py-2.5 text-sm sm:text-base bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                   onClick={resetProof}
                 >
                   {t.resetProof}
                 </button>
                 <button 
-                  className="px-4 py-2.5 text-sm sm:text-base text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                  className="px-4 py-2.5 text-sm sm:text-base bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                   onClick={undo}
                 >
                   {t.undo}
                 </button>
                 <button
-                  className="px-4 py-2.5 text-sm sm:text-base text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500 col-span-2"
+                  className="px-4 py-2.5 text-sm sm:text-base bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500 col-span-2"
                   onClick={goToNextExercise}
                 >
                   {t.nextExercise}
@@ -473,19 +481,19 @@ const App: React.FC = () => {
               <div className="hidden md:flex md:flex-wrap md:justify-center md:gap-4">
                 <div className="flex flex-wrap justify-center gap-4">
                   <button 
-                    className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                    className="px-6 py-3 bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                     onClick={resetProof}
                   >
                     {t.resetProof}
                   </button>
                   <button 
-                    className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                    className="px-6 py-3 bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                     onClick={undo}
                   >
                     {t.undo}
                   </button>
                   <button
-                    className="px-6 py-3 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
+                    className="px-6 py-3 bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                     onClick={goToNextExercise}
                   >
                     {t.nextExercise}
@@ -497,10 +505,12 @@ const App: React.FC = () => {
             {/* Message Area */}
             {message && (
               <div className={`rounded-lg p-4 text-center font-semibold ${
-                message.type === 'success' ? 'bg-green-100 border-2 border-green-500 text-green-800' :
-                message.type === 'error' ? 'bg-red-100 border-2 border-red-500 text-red-800' :
-                'bg-blue-100 border-2 border-blue-500 text-blue-800'
-              } ${isDarkMode ? 'dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100' : ''} ${message.type === 'success' ? 'animate-pulse' : ''}`}>
+                message.type === 'success'
+                  ? 'bg-green-100 border-2 border-green-500 text-green-800 dark:bg-green-900/30 dark:border-green-500 dark:text-green-200'
+                  : message.type === 'error'
+                    ? 'bg-red-100 border-2 border-red-500 text-red-800 dark:bg-red-900/30 dark:border-red-500 dark:text-red-200'
+                    : 'bg-blue-100 border-2 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:border-blue-500 dark:text-blue-200'
+              }`}>
                 {message.text}
               </div>
             )}
@@ -518,43 +528,41 @@ const App: React.FC = () => {
           />
 
           <aside
-            className={`fixed top-0 left-0 h-full bg-white dark:bg-slate-900 dark:border-r dark:border-slate-700 z-40 transform transition-transform duration-300 ease-out md:translate-x-0 ${
+            className={`fixed top-0 left-0 h-full flex flex-col bg-white dark:bg-slate-800 dark:border-r dark:border-slate-700 z-40 transform transition-transform duration-300 ease-out md:translate-x-0 ${
               isRulesDrawerOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
             style={{ width: mobileDrawerWidth, maxWidth: `${drawerWidth}px` }}
           >
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 md:hidden">
-                <div className="w-6" aria-hidden="true" />
-                <button
-                  onClick={() => setIsRulesDrawerOpen(false)}
-                  className="p-2 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                  aria-label={t.cancel}
-                  title={t.cancel}
-                >
-                  <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <label className="px-3 pt-3 flex items-center justify-center gap-2 mb-4 text-sm text-slate-700 dark:text-slate-200">
-                <input
-                  type="checkbox"
-                  checked={showRuleTrees}
-                  onChange={(e) => setShowRuleTrees(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <span>{t.showRuleTrees}</span>
-              </label>
-
-              <RulePanel
-                onRuleClick={applyRule}
-                className="mb-0 shadow-none w-full flex-1 overflow-y-auto px-3 pb-3"
-                compact
-                showRuleTrees={showRuleTrees}
-              />
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 md:hidden">
+              <div className="w-6" aria-hidden="true" />
+              <button
+                onClick={() => setIsRulesDrawerOpen(false)}
+                className="p-2 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                aria-label={t.cancel}
+                title={t.cancel}
+              >
+                <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
+
+            <label className="px-3 pt-3 flex items-center justify-center gap-2 mb-4 text-sm text-slate-700 dark:text-slate-200">
+              <input
+                type="checkbox"
+                checked={showRuleTrees}
+                onChange={(e) => setShowRuleTrees(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span>{t.showRuleTrees}</span>
+            </label>
+
+            <RulePanel
+              onRuleClick={applyRule}
+              className="mb-0 shadow-none w-full flex-1 overflow-y-auto px-3 pb-3"
+              compact
+              showRuleTrees={showRuleTrees}
+            />
 
             <div
               className="absolute top-0 right-0 h-full w-2 cursor-col-resize hidden md:block"
