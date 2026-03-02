@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://fortierq.github.io/dednat/sitemap.xml
