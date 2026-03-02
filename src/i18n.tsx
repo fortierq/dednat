@@ -8,7 +8,6 @@ interface Translations {
   rulesUsed: string;
   // Header
   appTitle: string;
-  appSubtitle: string;
   home: string;
   github: string;
   darkMode: string;
@@ -23,13 +22,11 @@ interface Translations {
   clearFilters: string;
   customSequent: string;
   customSequentModalTitle: string;
-  customSequentModalDescription: string;
   customSequentSyntaxHelp: string;
   customHypothesesPlaceholder: string;
   customGoalPlaceholder: string;
   startProof: string;
   customSequentTitle: string;
-  customSequentDescription: string;
   randomExercise: string;
   
   // Difficulty levels
@@ -40,15 +37,12 @@ interface Translations {
   // Exercise view
   goal: string;
   hypotheses: string;
-  none: string;
   resetProof: string;
-  backToExercises: string;
   undo: string;
   nextExercise: string;
   
   // Rule panel
   inferenceRules: string;
-  showRuleTrees: string;
   introductionRules: string;
   eliminationRules: string;
   otherRules: string;
@@ -90,24 +84,16 @@ interface Translations {
   proofSelectedNotDisjunction: string;
   proofGoalNotNegation: string;
   
-  // Completion modal
-  proofComplete: string;
-  congratulations: string;
-  chooseAnotherExercise: string;
-  viewProof: string;
-  
   // Formula input modal
   confirm: string;
   cancel: string;
-  enterFormula: string;
   invalidFormula: string;
 }
 
 const translations: Record<Language, Translations> = {
   fr: {
     // Header
-    appTitle: 'Exercices de Déduction Naturelle',
-    appSubtitle: 'Apprenez la logique propositionnelle par la construction interactive de preuves',
+    appTitle: 'Exercices de déduction naturelle',
     home: 'Accueil',
     github: 'GitHub',
     darkMode: 'Mode sombre',
@@ -122,13 +108,11 @@ const translations: Record<Language, Translations> = {
     clearFilters: 'Effacer les filtres',
     customSequent: 'Séquent personnalisé',
     customSequentModalTitle: 'Créer un séquent personnalisé',
-    customSequentModalDescription: 'Entrez les hypothèses séparées par des virgules, puis le but à prouver.',
     customSequentSyntaxHelp: 'Symboles : !, &, |, ->, 0, 1, ( )',
     customHypothesesPlaceholder: 'Ex: A -> B, A',
     customGoalPlaceholder: 'Ex: B',
     startProof: 'Commencer la preuve',
     customSequentTitle: 'Séquent personnalisé',
-    customSequentDescription: 'Séquent défini par l\'utilisateur',
     randomExercise: 'Exercices aléatoires',
 
     // Difficulty levels
@@ -139,15 +123,12 @@ const translations: Record<Language, Translations> = {
     // Exercise view
     goal: 'But',
     hypotheses: 'Hypothèses',
-    none: 'Aucune',
     resetProof: 'Réinitialiser',
-    backToExercises: 'Retour aux exercices',
     undo: 'Annuler',
     nextExercise: 'Exercice suivant',
 
     // Rule panel
     inferenceRules: 'Règles d\'inférence',
-    showRuleTrees: 'Afficher les règles',
     introductionRules: 'Introduction',
     eliminationRules: 'Élimination',
     otherRules: 'Autres règles',
@@ -189,23 +170,15 @@ const translations: Record<Language, Translations> = {
     proofSelectedNotDisjunction: 'La formule sélectionnée n\'est pas une disjonction',
     proofGoalNotNegation: 'Le but n\'est pas une négation',
 
-    // Completion modal
-    proofComplete: 'Preuve terminée !',
-    congratulations: 'Félicitations ! Vous avez prouvé :',
-    chooseAnotherExercise: 'Choisir un autre exercice',
-    viewProof: 'Voir la preuve',
-
     // Formula input modal
     confirm: 'Confirmer',
     cancel: 'Annuler',
-    enterFormula: 'Entrez une formule',
     invalidFormula: 'Formule invalide',
     rulesUsed: 'Règles'
   },
   en: {
     // Header
     appTitle: 'Natural Deduction Exercises',
-    appSubtitle: 'Learn propositional logic through interactive proof construction',
     home: 'Home',
     github: 'GitHub',
     darkMode: 'Dark Mode',
@@ -220,13 +193,11 @@ const translations: Record<Language, Translations> = {
     clearFilters: 'Clear filters',
     customSequent: 'Custom Sequent',
     customSequentModalTitle: 'Create Custom Sequent',
-    customSequentModalDescription: 'Enter hypotheses separated by commas, then the goal to prove.',
     customSequentSyntaxHelp: 'Symbols : !, &, |, ->, 0, 1, ( )',
     customHypothesesPlaceholder: 'e.g. A -> B, A',
     customGoalPlaceholder: 'e.g. B',
     startProof: 'Start Proof',
     customSequentTitle: 'Custom Sequent',
-    customSequentDescription: 'User-defined sequent',
     randomExercise: 'Random Exercises',
 
     // Difficulty levels
@@ -237,15 +208,12 @@ const translations: Record<Language, Translations> = {
     // Exercise view
     goal: 'Goal',
     hypotheses: 'Hypotheses',
-    none: 'None',
     resetProof: 'Reset Proof',
-    backToExercises: 'Back to Exercises',
     undo: 'Undo',
     nextExercise: 'Next Exercise',
 
     // Rule panel
     inferenceRules: 'Inference Rules',
-    showRuleTrees: 'Show rule trees',
     introductionRules: 'Introduction',
     eliminationRules: 'Elimination',
     otherRules: 'Other Rules',
@@ -287,16 +255,9 @@ const translations: Record<Language, Translations> = {
     proofSelectedNotDisjunction: 'Selected formula is not a disjunction',
     proofGoalNotNegation: 'Goal is not a negation',
 
-    // Completion modal
-    proofComplete: 'Proof Complete!',
-    congratulations: 'Congratulations! You successfully proved:',
-    chooseAnotherExercise: 'Choose Another Exercise',
-    viewProof: 'View Proof',
-
     // Formula input modal
     confirm: 'Confirm',
     cancel: 'Cancel',
-    enterFormula: 'Enter a formula',
     invalidFormula: 'Invalid formula',
     rulesUsed: 'Rules'
   }

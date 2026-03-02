@@ -46,7 +46,7 @@ const App: React.FC = () => {
   const [drawerWidth, setDrawerWidth] = useState(420);
   const [isRulesDrawerResizing, setIsRulesDrawerResizing] = useState(false);
   const isLeftPanelOpen = currentExercise ? isRulesDrawerOpen : isFiltersDrawerOpen;
-  const desktopDrawerOffset = isLeftPanelOpen ? drawerWidth + 16 : 0;
+  const desktopDrawerOffset = isLeftPanelOpen ? drawerWidth + 16 : 16;
   const mobileDrawerWidth = `min(${drawerWidth}px, calc(100vw - 1rem))`;
 
   const proofMessages = useCallback(() => {
