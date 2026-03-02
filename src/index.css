@@ -147,13 +147,13 @@
   }
 
   .modal-btn-confirm {
-    @apply px-6 py-2 border-2 border-slate-200 bg-white text-slate-900 font-semibold rounded-lg
+    @apply px-4 py-2 text-sm border-2 border-slate-200 bg-white text-slate-900 font-normal rounded-lg
            transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2;
   }
 
   .modal-btn-cancel {
-    @apply px-6 py-2 border-2 border-slate-200 bg-white text-slate-900 font-semibold rounded-lg
+    @apply px-4 py-2 text-sm border-2 border-slate-200 bg-white text-slate-900 font-normal rounded-lg
            transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2;
   }

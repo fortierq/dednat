@@ -445,8 +445,8 @@ const App: React.FC = () => {
         style={{ ['--drawer-offset' as string]: `${desktopDrawerOffset}px` } as React.CSSProperties}
       >
         <div className="max-w-[112rem] mx-auto flex items-center justify-between gap-2 sm:gap-4">
-          <h1 className="text-base sm:text-lg md:text-2xl font-bold leading-tight pr-2">
-            <span className="md:hidden">Deduction naturelle</span>
+          <h1 className="text-xl font-bold leading-tight pr-2">
+            <span className="md:hidden">Déduction Naturelle</span>
             <span className="hidden md:inline">{t.appTitle}</span>
           </h1>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -613,7 +613,7 @@ const App: React.FC = () => {
             }`}
             style={{ width: mobileDrawerWidth, maxWidth: `${drawerWidth}px` }}
           >
-            <div className="px-3 pt-3 mb-4 grid grid-cols-[2.25rem_1fr_2.25rem] items-center gap-2">
+            <div className={`px-3 pt-3 ${modalState ? 'mb-2' : 'mb-4'} grid grid-cols-[2.25rem_1fr_2.25rem] items-center gap-2`}>
               <div className="w-9 h-9" aria-hidden="true" />
               <div className="justify-self-center w-full max-w-md">
                 {modalState && (
@@ -625,6 +625,7 @@ const App: React.FC = () => {
                             ref={index === 0 ? panelModalFirstInputRef : undefined}
                             type="text"
                             className="modal-input text-center"
+                            style={{ height: '2.125rem' }}
                             placeholder={variableName}
                             aria-label={variableName}
                             value={panelModalValues[variableName] ?? ''}
@@ -646,6 +647,7 @@ const App: React.FC = () => {
                         ref={panelModalFirstInputRef}
                         type="text"
                         className="modal-input text-center max-w-md"
+                        style={{ height: '2.125rem' }}
                         placeholder={modalState.placeholder}
                         value={panelModalValues.formula ?? ''}
                         onChange={(e) => setPanelModalValues({ formula: e.target.value })}
@@ -669,7 +671,7 @@ const App: React.FC = () => {
 
             {modalState && (
               <div className="mx-3 mb-2">
-                <div className="flex gap-2 justify-center mt-1">
+                <div className="flex gap-2 justify-center mt-0.5">
                   <button className="modal-btn-cancel" onClick={() => setModalState(null)}>{t.cancel}</button>
                   <button className="modal-btn-confirm" onClick={submitPanelRuleInput}>{t.confirm}</button>
                 </div>
