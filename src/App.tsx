@@ -625,7 +625,7 @@ const App: React.FC = () => {
 
             {/* Message Area */}
             {message && (
-              <div className={`rounded-lg p-4 text-center font-semibold ${
+              <div className={`mb-6 mx-auto inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 md:px-6 md:py-3 min-h-[42px] md:min-h-[50px] text-center font-semibold ${
                 message.type === 'success'
                   ? 'bg-green-100 border-2 border-green-500 text-green-800 dark:bg-green-900/30 dark:border-green-500 dark:text-green-200'
                   : message.type === 'error'
