@@ -515,7 +515,7 @@ const App: React.FC = () => {
               </svg>
             </button>
             <a
-              href="https://github.com/fortierq/dednat"
+              href="https://github.com/fortierq/deduction-naturelle"
               target="_blank"
               rel="noopener noreferrer"
               title={t.github}

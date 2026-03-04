@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://fortierq.github.io/dednat/sitemap.xml
+Sitemap: https://fortierq.github.io/deduction-naturelle/sitemap.xml
