@@ -366,8 +366,8 @@ const App: React.FC = () => {
       
       case 'impl-elim':
         setModalState({
-          placeholder: `A -> ${node.sequent.goal.toDisplayString()}`,
-          formulaTemplate: `{A} -> ${node.sequent.goal.toDisplayString()}`,
+          placeholder: `A -> (${node.sequent.goal.toDisplayString()})`,
+          formulaTemplate: `({A}) -> (${node.sequent.goal.toDisplayString()})`,
           variableNames: ['A'],
           action: 'impl-elim'
         });
@@ -379,8 +379,8 @@ const App: React.FC = () => {
       
       case 'and-elim-left':
         setModalState({
-          placeholder: `${node.sequent.goal.toDisplayString()} & B`,
-          formulaTemplate: `${node.sequent.goal.toDisplayString()} & {B}`,
+          placeholder: `(${node.sequent.goal.toDisplayString()}) & B`,
+          formulaTemplate: `(${node.sequent.goal.toDisplayString()}) & ({B})`,
           variableNames: ['B'],
           action: 'and-elim-left'
         });
@@ -388,8 +388,8 @@ const App: React.FC = () => {
       
       case 'and-elim-right':
         setModalState({
-          placeholder: `A & ${node.sequent.goal.toDisplayString()}`,
-          formulaTemplate: `{A} & ${node.sequent.goal.toDisplayString()}`,
+          placeholder: `A & (${node.sequent.goal.toDisplayString()})`,
+          formulaTemplate: `({A}) & (${node.sequent.goal.toDisplayString()})`,
           variableNames: ['A'],
           action: 'and-elim-right'
         });
