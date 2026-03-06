@@ -35,8 +35,8 @@ export const RuleTree: React.FC<RuleTreeProps> = ({ premises, conclusion, ruleNa
 // Predefined rule displays using LaTeX
 export const ImplIntroRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p" math="[A]^1 \vdots B" />]}
-    conclusion={<Latex math="A \to B" />}
+    premises={[<Latex key="p" math="[X]^1 \vdots Y" />]}
+    conclusion={<Latex math="X \to Y" />}
     ruleName="→I"
     discharged="1"
   />
@@ -44,48 +44,48 @@ export const ImplIntroRule: React.FC = () => (
 
 export const ImplElimRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p1" math="A \to B" />, <Latex key="p2" math="A" />]}
-    conclusion={<Latex math="B" />}
+    premises={[<Latex key="p1" math="X \to Y" />, <Latex key="p2" math="X" />]}
+    conclusion={<Latex math="Y" />}
     ruleName="→E"
   />
 );
 
 export const AndIntroRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p1" math="A" />, <Latex key="p2" math="B" />]}
-    conclusion={<Latex math="A \land B" />}
+    premises={[<Latex key="p1" math="X" />, <Latex key="p2" math="Y" />]}
+    conclusion={<Latex math="X \land Y" />}
     ruleName="∧I"
   />
 );
 
 export const AndElimLeftRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p" math="A \land B" />]}
-    conclusion={<Latex math="A" />}
+    premises={[<Latex key="p" math="X \land Y" />]}
+    conclusion={<Latex math="X" />}
     ruleName="∧E₁"
   />
 );
 
 export const AndElimRightRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p" math="A \land B" />]}
-    conclusion={<Latex math="B" />}
+    premises={[<Latex key="p" math="X \land Y" />]}
+    conclusion={<Latex math="Y" />}
     ruleName="∧E₂"
   />
 );
 
 export const OrIntroLeftRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p" math="A" />]}
-    conclusion={<Latex math="A \lor B" />}
+    premises={[<Latex key="p" math="X" />]}
+    conclusion={<Latex math="X \lor Y" />}
     ruleName="∨I₁"
   />
 );
 
 export const OrIntroRightRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p" math="B" />]}
-    conclusion={<Latex math="A \lor B" />}
+    premises={[<Latex key="p" math="Y" />]}
+    conclusion={<Latex math="X \lor Y" />}
     ruleName="∨I₂"
   />
 );
@@ -93,11 +93,11 @@ export const OrIntroRightRule: React.FC = () => (
 export const OrElimRule: React.FC = () => (
   <RuleTree
     premises={[
-      <Latex key="p1" math="A \lor B" />,
-      <Latex key="p2" math="[A]^1 \vdots C" />,
-      <Latex key="p3" math="[B]^2 \vdots C" />
+      <Latex key="p1" math="X \lor Y" />,
+      <Latex key="p2" math="[X]^1 \vdots Z" />,
+      <Latex key="p3" math="[Y]^2 \vdots Z" />
     ]}
-    conclusion={<Latex math="C" />}
+    conclusion={<Latex math="Z" />}
     ruleName="∨E"
     discharged="1,2"
   />
@@ -105,8 +105,8 @@ export const OrElimRule: React.FC = () => (
 
 export const NegIntroRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p" math="[A]^1 \vdots \bot" />]}
-    conclusion={<Latex math="\neg A" />}
+    premises={[<Latex key="p" math="[X]^1 \vdots \bot" />]}
+    conclusion={<Latex math="\neg X" />}
     ruleName="¬I"
     discharged="1"
   />
@@ -114,7 +114,7 @@ export const NegIntroRule: React.FC = () => (
 
 export const NegElimRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p1" math="A" />, <Latex key="p2" math="\neg A" />]}
+    premises={[<Latex key="p1" math="X" />, <Latex key="p2" math="\neg X" />]}
     conclusion={<Latex math="\bot" />}
     ruleName="¬E"
   />
@@ -123,15 +123,15 @@ export const NegElimRule: React.FC = () => (
 export const AbsurdRule: React.FC = () => (
   <RuleTree
     premises={[<Latex key="p" math="\bot" />]}
-    conclusion={<Latex math="A" />}
+    conclusion={<Latex math="X" />}
     ruleName="⊥E"
   />
 );
 
 export const raaRule: React.FC = () => (
   <RuleTree
-    premises={[<Latex key="p" math="[\neg A]^1 \vdots \bot" />]}
-    conclusion={<Latex math="A" />}
+    premises={[<Latex key="p" math="[\neg X]^1 \vdots \bot" />]}
+    conclusion={<Latex math="X" />}
     ruleName="raa"
     discharged="1"
   />
@@ -140,7 +140,7 @@ export const raaRule: React.FC = () => (
 export const AxiomRule: React.FC = () => (
   <RuleTree
     premises={[]}
-    conclusion={<Latex math="A \in \Gamma" />}
+    conclusion={<Latex math="X \in \Gamma" />}
     ruleName="Ax"
   />
 );

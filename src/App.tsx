@@ -366,9 +366,9 @@ const App: React.FC = () => {
       
       case 'impl-elim':
         setModalState({
-          placeholder: `A -> (${node.sequent.goal.toDisplayString()})`,
-          formulaTemplate: `({A}) -> (${node.sequent.goal.toDisplayString()})`,
-          variableNames: ['A'],
+          placeholder: `X -> (${node.sequent.goal.toDisplayString()})`,
+          formulaTemplate: `({X}) -> (${node.sequent.goal.toDisplayString()})`,
+          variableNames: ['X'],
           action: 'impl-elim'
         });
         return;
@@ -379,18 +379,18 @@ const App: React.FC = () => {
       
       case 'and-elim-left':
         setModalState({
-          placeholder: `(${node.sequent.goal.toDisplayString()}) & B`,
-          formulaTemplate: `(${node.sequent.goal.toDisplayString()}) & ({B})`,
-          variableNames: ['B'],
+          placeholder: `(${node.sequent.goal.toDisplayString()}) & Y`,
+          formulaTemplate: `(${node.sequent.goal.toDisplayString()}) & ({Y})`,
+          variableNames: ['Y'],
           action: 'and-elim-left'
         });
         return;
       
       case 'and-elim-right':
         setModalState({
-          placeholder: `A & (${node.sequent.goal.toDisplayString()})`,
-          formulaTemplate: `({A}) & (${node.sequent.goal.toDisplayString()})`,
-          variableNames: ['A'],
+          placeholder: `X & (${node.sequent.goal.toDisplayString()})`,
+          formulaTemplate: `({X}) & (${node.sequent.goal.toDisplayString()})`,
+          variableNames: ['X'],
           action: 'and-elim-right'
         });
         return;
@@ -405,9 +405,9 @@ const App: React.FC = () => {
       
       case 'or-elim':
         setModalState({
-          placeholder: 'A | B',
-          formulaTemplate: '{A} | {B}',
-          variableNames: ['A', 'B'],
+          placeholder: 'X | Y',
+          formulaTemplate: '{X} | {Y}',
+          variableNames: ['X', 'Y'],
           action: 'or-elim'
         });
         return;
@@ -422,9 +422,9 @@ const App: React.FC = () => {
           return;
         }
         setModalState({
-          placeholder: 'A',
-          formulaTemplate: '{A}',
-          variableNames: ['A'],
+          placeholder: 'X',
+          formulaTemplate: '{X}',
+          variableNames: ['X'],
           action: 'neg-elim'
         });
         return;

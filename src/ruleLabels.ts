@@ -109,7 +109,7 @@ const panelRuleVisualByRule: Record<PanelRuleName, Pick<PanelRuleUi, 'imageSrc' 
   'or-elim': { imageSrc: 'assets/rules/or_elim.png', widthPct: 100 },
   'neg-intro': { imageSrc: 'assets/rules/neg_intro.png', widthPct: 46 },
   'neg-elim': { imageSrc: 'assets/rules/neg_elim.png', widthPct: 77 },
-  'absurd': { imageSrc: 'assets/rules/bot_elim.png', widthPct: 37 },
+  'absurd': { imageSrc: 'assets/rules/bot_elim.png', widthPct: 39 },
   'raa': { imageSrc: 'assets/rules/raa.png', widthPct: 56 },
   'axiom': { imageSrc: 'assets/rules/axiom.png', widthPct: 46 }
 };
