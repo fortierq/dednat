@@ -13,7 +13,7 @@ const FORMULA_PRECEDENCE = {
   neg: 90,
   and: 70,
   or: 60,
-  impl: 50
+  imp: 50
 } as const;
 
 interface ProofNodeDisplayProps {
@@ -48,7 +48,7 @@ const renderFormulaLatex = (formula: Formula, notationRule?: NotationRule | null
       case 'or':
         result = `${renderWithPrecedence(currentFormula.left, currentPrecedence)} \\lor ${renderWithPrecedence(currentFormula.right, currentPrecedence + 1)}`;
         break;
-      case 'impl':
+      case 'imp':
         result = `${renderWithPrecedence(currentFormula.left, currentPrecedence + 1)} \\to ${renderWithPrecedence(currentFormula.right, currentPrecedence)}`;
         break;
       default:

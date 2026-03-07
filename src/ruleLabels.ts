@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { RuleName } from './rules';
 
 export type PanelRuleName = RuleName;
@@ -8,51 +9,48 @@ export interface PanelRuleUi {
   latexLabel: string;
 }
 
-export const ruleLabelLatexByPanelRule: Record<PanelRuleName, string> = {
-  'axiom': '\\mathrm{ax}',
-  'impl-intro': '\\to_{i}',
-  'impl-elim': '\\to_{e}',
-  'and-intro': '\\wedge_{i}',
-  'and-elim-left': '\\wedge_{e}^{g}',
-  'and-elim-right': '\\wedge_{e}^{d}',
-  'or-intro-left': '\\vee_{i}^{g}',
-  'or-intro-right': '\\vee_{i}^{d}',
-  'or-elim': '\\vee_{e}',
-  'neg-intro': '\\neg_{i}',
-  'neg-elim': '\\neg_{e}',
-  'absurd': '\\bot_{e}',
-  'raa': '\\mathrm{raa}'
+const ruleImageSrc = (rule: PanelRuleName): string => {
+  const fileName = `${rule.replace(/-/g, '_')}.png`;
+
+  return `${import.meta.env.BASE_URL}assets/rules/${fileName}`;
 };
+
+interface PanelRuleSpec {
+  widthPct: number;
+  latexLabel: string;
+}
+
+const panelRuleSpecByRule: Record<PanelRuleName, PanelRuleSpec> = {
+  'axiom': { widthPct: 46, latexLabel: '\\mathrm{ax}' },
+  'imp-intro': { widthPct: 58, latexLabel: '\\to_{i}' },
+  'imp-elim': { widthPct: 94, latexLabel: '\\to_{e}' },
+  'and-intro': { widthPct: 72, latexLabel: '\\wedge_{i}' },
+  'and-elim-left': { widthPct: 58, latexLabel: '\\wedge_{e}^{g}' },
+  'and-elim-right': { widthPct: 58, latexLabel: '\\wedge_{e}^{d}' },
+  'or-intro-left': { widthPct: 58, latexLabel: '\\vee_{i}^{g}' },
+  'or-intro-right': { widthPct: 58, latexLabel: '\\vee_{i}^{d}' },
+  'or-elim': { widthPct: 100, latexLabel: '\\vee_{e}' },
+  'neg-intro': { widthPct: 46, latexLabel: '\\neg_{i}' },
+  'neg-elim': { widthPct: 77, latexLabel: '\\neg_{e}' },
+  'bot_elim': { widthPct: 39, latexLabel: '\\bot_{e}' },
+  'raa': { widthPct: 56, latexLabel: '\\mathrm{raa}' }
+};
+
+export const ruleLabelLatexByPanelRule: Record<PanelRuleName, string> = Object.fromEntries(
+  Object.entries(panelRuleSpecByRule).map(([rule, spec]) => [rule, spec.latexLabel])
+) as Record<PanelRuleName, string>;
 
 export const ruleLabelLatexByProofRule: Record<RuleName, string> = ruleLabelLatexByPanelRule;
 
-const ruleImageSrc = (fileName: string): string => `${import.meta.env.BASE_URL}assets/rules/${fileName}`;
-
-const panelRuleVisualByRule: Record<PanelRuleName, Pick<PanelRuleUi, 'imageSrc' | 'widthPct'>> = {
-  'impl-intro': { imageSrc: ruleImageSrc('imp_intro.png'), widthPct: 58 },
-  'impl-elim': { imageSrc: ruleImageSrc('imp_elim.png'), widthPct: 94 },
-  'and-intro': { imageSrc: ruleImageSrc('and_intro.png'), widthPct: 72 },
-  'and-elim-left': { imageSrc: ruleImageSrc('and_elim_left.png'), widthPct: 58 },
-  'and-elim-right': { imageSrc: ruleImageSrc('and_elim_right.png'), widthPct: 58 },
-  'or-intro-left': { imageSrc: ruleImageSrc('or_intro_left.png'), widthPct: 58 },
-  'or-intro-right': { imageSrc: ruleImageSrc('or_intro_right.png'), widthPct: 58 },
-  'or-elim': { imageSrc: ruleImageSrc('or_elim.png'), widthPct: 100 },
-  'neg-intro': { imageSrc: ruleImageSrc('neg_intro.png'), widthPct: 46 },
-  'neg-elim': { imageSrc: ruleImageSrc('neg_elim.png'), widthPct: 77 },
-  'absurd': { imageSrc: ruleImageSrc('bot_elim.png'), widthPct: 39 },
-  'raa': { imageSrc: ruleImageSrc('raa.png'), widthPct: 56 },
-  'axiom': { imageSrc: ruleImageSrc('axiom.png'), widthPct: 46 }
-};
-
 export const panelRuleUiByRule: Record<PanelRuleName, PanelRuleUi> = Object.fromEntries(
-  Object.entries(ruleLabelLatexByPanelRule).map(([rule, latexLabel]) => {
+  Object.entries(panelRuleSpecByRule).map(([rule, spec]) => {
     const panelRule = rule as PanelRuleName;
     return [
       panelRule,
       {
-        imageSrc: panelRuleVisualByRule[panelRule].imageSrc,
-        widthPct: panelRuleVisualByRule[panelRule].widthPct,
-        latexLabel
+        imageSrc: ruleImageSrc(panelRule),
+        widthPct: spec.widthPct,
+        latexLabel: spec.latexLabel
       }
     ];
   })

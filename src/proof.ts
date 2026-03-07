@@ -197,13 +197,13 @@ export class ProofTree {
         return { success: true };
     }
 
-    applyImplIntro(): ProofResult {
+    applyImpIntro(): ProofResult {
         if (!this.selectedNode) return this.fail('noGoalSelected');
         
         const node = this.selectedNode;
         const goal = node.sequent.goal;
         
-        if (goal.type !== 'impl') {
+        if (goal.type !== 'imp') {
             return this.fail('proofGoalNotImplication');
         }
 
@@ -213,7 +213,7 @@ export class ProofTree {
         const newSequent = node.sequent.addToContext(antecedent).withGoal(consequent);
         
         const premise = new ProofNode(newSequent);
-        node.rule = 'impl-intro';
+        node.rule = 'imp-intro';
         node.premises = [premise];
         node.dischargedAssumption = { formula: antecedent };
         
@@ -221,24 +221,24 @@ export class ProofTree {
         return { success: true };
     }
 
-    applyImplElim(implFormula: Formula): ProofResult {
+    applyImpElim(impFormula: Formula): ProofResult {
         if (!this.selectedNode) return this.fail('noGoalSelected');
         
         const node = this.selectedNode;
         
-        if (implFormula.type !== 'impl') {
+        if (impFormula.type !== 'imp') {
             return this.fail('proofSelectedNotImplication');
         }
         
-        if (!implFormula.right.equals(node.sequent.goal)) {
+        if (!impFormula.right.equals(node.sequent.goal)) {
             return this.fail('proofImplicationConclusionMismatch');
         }
 
         this.saveState();
-        const premise1 = new ProofNode(node.sequent.withGoal(implFormula));
-        const premise2 = new ProofNode(node.sequent.withGoal(implFormula.left));
+        const premise1 = new ProofNode(node.sequent.withGoal(impFormula));
+        const premise2 = new ProofNode(node.sequent.withGoal(impFormula.left));
         
-        node.rule = 'impl-elim';
+        node.rule = 'imp-elim';
         node.premises = [premise1, premise2];
         
         this.selectedNode = premise1;
@@ -422,7 +422,7 @@ export class ProofTree {
         return { success: true };
     }
 
-    applyAbsurd(): ProofResult {
+    applyBotElim(): ProofResult {
         if (!this.selectedNode) return this.fail('noGoalSelected');
         
         const node = this.selectedNode;
@@ -430,7 +430,7 @@ export class ProofTree {
         this.saveState();
         const premise = new ProofNode(node.sequent.withGoal(Formula.bottom()));
         
-        node.rule = 'absurd';
+        node.rule = 'bot_elim';
         node.premises = [premise];
         
         this.selectedNode = premise;

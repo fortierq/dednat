@@ -1,6 +1,6 @@
 // Formula representation and parsing for propositional logic
 
-export type FormulaType = 'var' | 'and' | 'or' | 'impl' | 'neg' | 'bottom';
+export type FormulaType = 'var' | 'and' | 'or' | 'imp' | 'neg' | 'bottom';
 
 const FORMULA_PRECEDENCE: Record<FormulaType, number> = {
     'var': 100,
@@ -8,7 +8,7 @@ const FORMULA_PRECEDENCE: Record<FormulaType, number> = {
     'neg': 90,
     'and': 70,
     'or': 60,
-    'impl': 50
+    'imp': 50
 };
 
 type FormulaRenderMode = 'text' | 'latex';
@@ -31,8 +31,8 @@ export class Formula {
         return new Formula('or', [left, right]);
     }
 
-    static impl(left: Formula, right: Formula): Formula {
-        return new Formula('impl', [left, right]);
+    static imp(left: Formula, right: Formula): Formula {
+        return new Formula('imp', [left, right]);
     }
 
     static neg(inner: Formula): Formula {
@@ -44,14 +44,14 @@ export class Formula {
     }
 
     get left(): Formula {
-        if (this.type === 'and' || this.type === 'or' || this.type === 'impl') {
+        if (this.type === 'and' || this.type === 'or' || this.type === 'imp') {
             return this.args[0] as Formula;
         }
         throw new Error(`Formula type ${this.type} has no left operand`);
     }
 
     get right(): Formula {
-        if (this.type === 'and' || this.type === 'or' || this.type === 'impl') {
+        if (this.type === 'and' || this.type === 'or' || this.type === 'imp') {
             return this.args[1] as Formula;
         }
         throw new Error(`Formula type ${this.type} has no right operand`);
@@ -79,7 +79,7 @@ export class Formula {
                 return `(${this.left.toString()} & ${this.right.toString()})`;
             case 'or':
                 return `(${this.left.toString()} | ${this.right.toString()})`;
-            case 'impl':
+            case 'imp':
                 return `(${this.left.toString()} -> ${this.right.toString()})`;
             case 'neg':
                 return `!${this.inner.toString()}`;
@@ -114,14 +114,14 @@ export class Formula {
                 neg: '\\neg ',
                 and: ' \\land ',
                 or: ' \\lor ',
-                impl: ' \\to '
+                imp: ' \\to '
             }
             : {
                 bottom: '0',
                 neg: '!',
                 and: ' & ',
                 or: ' | ',
-                impl: ' -> '
+                imp: ' -> '
             };
 
         let result: string;
@@ -142,8 +142,8 @@ export class Formula {
             case 'or':
                 result = `${this.left.formatWithPrecedence(currentPrecedence, mode)}${tokens.or}${this.right.formatWithPrecedence(currentPrecedence + 1, mode)}`;
                 break;
-            case 'impl':
-                result = `${this.left.formatWithPrecedence(currentPrecedence + 1, mode)}${tokens.impl}${this.right.formatWithPrecedence(currentPrecedence, mode)}`;
+            case 'imp':
+                result = `${this.left.formatWithPrecedence(currentPrecedence + 1, mode)}${tokens.imp}${this.right.formatWithPrecedence(currentPrecedence, mode)}`;
                 break;
             default:
                 result = '?';
@@ -175,8 +175,8 @@ export class Formula {
                 return Formula.and(this.left.clone(), this.right.clone());
             case 'or':
                 return Formula.or(this.left.clone(), this.right.clone());
-            case 'impl':
-                return Formula.impl(this.left.clone(), this.right.clone());
+            case 'imp':
+                return Formula.imp(this.left.clone(), this.right.clone());
             default:
                 throw new Error('Unknown formula type');
         }
@@ -209,7 +209,7 @@ export class FormulaParser {
         let left = this.parseOr();
         while (this.match('->') || this.match('=>')) {
             const right = this.parseImplication();
-            left = Formula.impl(left, right);
+            left = Formula.imp(left, right);
         }
         return left;
     }

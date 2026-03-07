@@ -273,8 +273,8 @@ const App: React.FC = () => {
 
     let result: ProofResult;
     switch (modalState?.action) {
-      case 'impl-elim':
-        result = tree.applyImplElim(formula);
+      case 'imp-elim':
+        result = tree.applyImpElim(formula);
         break;
       case 'and-elim-left':
         result = tree.applyAndElimLeft(formula);
@@ -390,16 +390,16 @@ const App: React.FC = () => {
         break;
       }
       
-      case 'impl-intro':
-        result = proofTree.applyImplIntro();
+      case 'imp-intro':
+        result = proofTree.applyImpIntro();
         break;
       
-      case 'impl-elim':
+      case 'imp-elim':
         setModalState({
           placeholder: `X -> (${node.sequent.goal.toDisplayString()})`,
           formulaTemplate: `({X}) -> (${node.sequent.goal.toDisplayString()})`,
           variableNames: ['X'],
-          action: 'impl-elim'
+          action: 'imp-elim'
         });
         return;
       
@@ -459,8 +459,8 @@ const App: React.FC = () => {
         });
         return;
       
-      case 'absurd':
-        result = proofTree.applyAbsurd();
+      case 'bot_elim':
+        result = proofTree.applyBotElim();
         break;
       
       case 'raa':

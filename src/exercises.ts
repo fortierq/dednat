@@ -22,13 +22,13 @@ export const exercises: Exercise[] = [
         goal: "A -> A",
         hypotheses: [],
         difficulty: "easy",
-        rules: ['impl']
+        rules: ['imp']
     },
     {
         goal: "B",
         hypotheses: ["A -> B", "A"],
         difficulty: "easy",
-        rules: ['impl']
+        rules: ['imp']
     },
     {
         goal: "A",
@@ -52,73 +52,73 @@ export const exercises: Exercise[] = [
         goal: "(A -> B) -> (B -> C) -> (A -> C)",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl']
+        rules: ['imp']
     },
     {
         goal: "(A & B) -> (B & A)",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'and']
+        rules: ['imp', 'and']
     },
     {
         goal: "A & B",
         hypotheses: ["A -> B", "A"],
         difficulty: "medium",
-        rules: ['impl', 'and']
+        rules: ['imp', 'and']
     },
     {
         goal: "(A & B -> C) -> (A -> B -> C)",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'and']
+        rules: ['imp', 'and']
     },
     {
         goal: "(A -> B -> C) -> (A & B -> C)",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'and']
+        rules: ['imp', 'and']
     },
     {
         goal: "A",
         hypotheses: ["A | 0"],
         difficulty: "medium",
-        rules: ['or', 'absurd']
+        rules: ['or', 'bot_elim']
     },
     {
         goal: "(A | B) -> (B | A)",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'or']
+        rules: ['imp', 'or']
     },
     {
         goal: "(A & (B | C)) -> ((A & B) | (A & C))",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'and', 'or']
+        rules: ['imp', 'and', 'or']
     },
     {
         goal: "(A -> B) -> (!B -> !A)",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'neg']
+        rules: ['imp', 'neg']
     },
     {
         goal: "A -> !!A",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'neg']
+        rules: ['imp', 'neg']
     },
     {
         goal: "!A",
         hypotheses: ["A -> B", "!B"],
         difficulty: "medium",
-        rules: ['impl', 'neg']
+        rules: ['imp', 'neg']
     },
     {
         goal: "!!A -> A",
         hypotheses: [],
         difficulty: "hard",
-        rules: ['impl', 'neg', 'raa']
+        rules: ['imp', 'neg', 'raa']
     },
     {
         goal: "A | !A",
@@ -130,43 +130,43 @@ export const exercises: Exercise[] = [
         goal: "((A -> B) -> A) -> A",
         hypotheses: [],
         difficulty: "hard",
-        rules: ['impl', 'absurd', 'raa']
+        rules: ['imp', 'bot_elim', 'raa']
     },
     {
         goal: "!(A & B) -> (!A | !B)",
         hypotheses: [],
         difficulty: "hard",
-        rules: ['impl', 'and', 'or', 'neg', 'raa']
+        rules: ['imp', 'and', 'or', 'neg', 'raa']
     },
     {
         goal: "!(A | B) -> (!A & !B)",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'and', 'or', 'neg']
+        rules: ['imp', 'and', 'or', 'neg']
     },
     {
         goal: "(A -> B) -> (C -> D) -> (A | C) -> (B | D)",
         hypotheses: [],
         difficulty: "hard",
-        rules: ['impl', 'or']
+        rules: ['imp', 'or']
     },
     {
         goal: "(A & !A) -> B",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'and', 'neg', 'absurd']
+        rules: ['imp', 'and', 'neg', 'bot_elim']
     },
     {
         goal: "!(A -> B) -> A",
         hypotheses: [],
         difficulty: "hard",
-        rules: ['impl', 'absurd', 'raa']
+        rules: ['imp', 'bot_elim', 'raa']
     },
     {
         goal: "((A -> B) & (B -> C) & A) -> C",
         hypotheses: [],
         difficulty: "medium",
-        rules: ['impl', 'and']
+        rules: ['imp', 'and']
     }
 ];
 

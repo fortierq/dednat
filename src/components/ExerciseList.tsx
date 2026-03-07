@@ -71,11 +71,11 @@ interface FilterDrawerProps {
 type DifficultyFilter = Exercise['difficulty'];
 const difficultyOptions: DifficultyFilter[] = ['easy', 'medium', 'hard'];
 const operatorLatexByFilter: Record<RuleOperator, string> = {
-  impl: '\\to',
+  imp: '\\to',
   and: '\\wedge',
   or: '\\vee',
   neg: '\\neg',
-  absurd: '\\bot',
+  bot_elim: '\\bot',
   raa: '\\mathrm{raa}'
 };
 

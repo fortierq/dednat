@@ -2,8 +2,8 @@ import { FormulaType } from './formulas';
 
 export const RULE_NAMES = [
   'axiom',
-  'impl-intro',
-  'impl-elim',
+  'imp-intro',
+  'imp-elim',
   'and-intro',
   'and-elim-left',
   'and-elim-right',
@@ -12,14 +12,14 @@ export const RULE_NAMES = [
   'or-elim',
   'neg-intro',
   'neg-elim',
-  'absurd',
+  'bot_elim',
   'raa'
 ] as const;
 
 export type RuleName = typeof RULE_NAMES[number];
 
 export const INTRO_RULES = [
-  'impl-intro',
+  'imp-intro',
   'and-intro',
   'or-intro-left',
   'or-intro-right',
@@ -27,17 +27,17 @@ export const INTRO_RULES = [
 ] as const;
 
 export const ELIMINATION_RULES = [
-  'impl-elim',
+  'imp-elim',
   'and-elim-left',
   'and-elim-right',
   'or-elim',
   'neg-elim'
 ] as const;
 
-export const OTHER_RULES = ['axiom', 'absurd', 'raa'] as const;
+export const OTHER_RULES = ['axiom', 'bot_elim', 'raa'] as const;
 
 export const RULES_REQUIRING_FORMULA_INPUT = [
-  'impl-elim',
+  'imp-elim',
   'and-elim-left',
   'and-elim-right',
   'or-elim',
@@ -49,5 +49,5 @@ const modalRuleSet = new Set<RuleName>(RULES_REQUIRING_FORMULA_INPUT);
 
 export const isModalRuleName = (rule: RuleName): rule is ModalRuleName => modalRuleSet.has(rule);
 
-export type RuleOperator = Extract<FormulaType, 'impl' | 'and' | 'or' | 'neg'> | 'absurd' | 'raa';
-export const RULE_OPERATORS: readonly RuleOperator[] = ['impl', 'and', 'or', 'neg', 'absurd', 'raa'];
+export type RuleOperator = Extract<FormulaType, 'imp' | 'and' | 'or' | 'neg'> | 'bot_elim' | 'raa';
+export const RULE_OPERATORS: readonly RuleOperator[] = ['imp', 'and', 'or', 'neg', 'bot_elim', 'raa'];
