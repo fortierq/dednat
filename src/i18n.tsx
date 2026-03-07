@@ -5,6 +5,7 @@ import { createContext, useContext, useState, type FC, type ReactNode } from 're
 export type Language = 'fr' | 'en';
 
 interface Translations {
+  syntaxHelp: ReactNode;
   rulesUsed: string;
   // Header
   appTitle: string;
@@ -104,7 +105,7 @@ const translations: Record<Language, Translations> = {
     goal: 'But',
     hypotheses: 'Hypothèses',
     notation: 'Notation',
-    notationSetPlaceholder: 'Une formule par ligne ou séparée par des virgules',
+    notationSetPlaceholder: 'Formules séparées par des virgules',
     notationCurrent: 'Notation active ',
     notationApply: 'Appliquer',
     resetProof: 'Réinitialiser',
@@ -142,7 +143,8 @@ const translations: Record<Language, Translations> = {
     confirm: 'Confirmer',
     cancel: 'Annuler',
     invalidFormula: 'Formule invalide',
-    rulesUsed: 'Règles'
+    rulesUsed: 'Règles',
+    syntaxHelp: 'Aide'
   },
   en: {
     // Header
@@ -173,7 +175,7 @@ const translations: Record<Language, Translations> = {
     goal: 'Goal',
     hypotheses: 'Hypotheses',
     notation: 'Notation',
-    notationSetPlaceholder: 'One formula per line or separated by commas',
+    notationSetPlaceholder: 'Formulas separated by commas',
     notationCurrent: 'Current notation',
     notationApply: 'Apply',
     resetProof: 'Reset',
@@ -211,7 +213,8 @@ const translations: Record<Language, Translations> = {
     confirm: 'Confirm',
     cancel: 'Cancel',
     invalidFormula: 'Invalid formula',
-    rulesUsed: 'Rules'
+    rulesUsed: 'Rules',
+    syntaxHelp: 'Help'
   }
 };
 

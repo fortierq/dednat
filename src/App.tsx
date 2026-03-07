@@ -28,9 +28,6 @@ interface ModalConfig {
   action: ModalRuleName;
 }
 
-const VARPHI_LATEX = String.raw`\varphi`;
-const GAMMA_LATEX = String.raw`\Gamma`;
-
 const App: React.FC = () => {
   const { t } = useLanguage();
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -664,7 +661,7 @@ const App: React.FC = () => {
                 <div className="inline-flex items-center gap-2 rounded-full border-2 border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-900 shadow-sm dark:border-blue-500/60 dark:bg-blue-900/20 dark:text-blue-100">
                   <span>{t.notationCurrent}:</span>
                   <span className="inline-flex items-center gap-1 align-middle rounded-full bg-white/80 px-2 py-1 dark:bg-slate-900/50">
-                    <Latex math={notationRule.type === 'formula' ? VARPHI_LATEX : GAMMA_LATEX} />
+                    <Latex math={notationRule.type === 'formula' ? String.raw`\varphi` : String.raw`\Gamma`} />
                     <span>=</span>
                     <Latex
                       math={notationRule.type === 'formula'
@@ -804,15 +801,16 @@ const App: React.FC = () => {
 
       <Modal isOpen={isNotationModalOpen} onClose={closeNotationModal} title={t.notation}>
         <div className="space-y-4">
-          <textarea
-            className="modal-input w-full min-h-28 resize-y text-left"
-            placeholder={t.notationSetPlaceholder}
+          <input
+            type="text"
+            className="modal-input"
             value={notationInput}
             onChange={(e) => setNotationInput(e.target.value)}
+            placeholder={t.notationSetPlaceholder}
           />
 
           <div className="flex flex-wrap gap-3 justify-center mt-4">
-            <SyntaxHelpBadge text={t.customSequentSyntaxHelp} tooltipPosition="top" />
+            <SyntaxHelpBadge text={t.customSequentSyntaxHelp} tooltipPosition="right" />
             <div className="flex flex-wrap justify-center gap-2">
               <button type="button" className="modal-btn-cancel" onClick={closeNotationModal}>
                 {t.cancel}

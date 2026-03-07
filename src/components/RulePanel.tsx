@@ -76,7 +76,7 @@ export const RulePanel: React.FC<RulePanelProps> = ({ onRuleClick, className = '
   );
 
   return (
-    <div className={`bg-white dark:bg-slate-900 rounded-xl px-2 py-4 mb-4 ${className}`}>
+    <div className={`bg-white dark:bg-slate-900 rounded-xl px-2 mb-4 ${className}`}>
       <div className="grid grid-cols-2 gap-3">
         {renderRuleGroup(t.introductionRules, INTRO_RULES)}
         {renderRuleGroup(t.eliminationRules, ELIM_RULES)}

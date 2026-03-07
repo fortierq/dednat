@@ -15,7 +15,8 @@ const tooltipClassByPosition: Record<TooltipPosition, string> = {
 };
 
 export const SyntaxHelpBadge: React.FC<SyntaxHelpBadgeProps> = ({ text, tooltipPosition = 'right' }) => {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
+
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export const SyntaxHelpBadge: React.FC<SyntaxHelpBadgeProps> = ({ text, tooltipP
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        {language === 'fr' ? 'Aide' : 'Help'}
+        {t.syntaxHelp}
       </button>
       {isOpen && (
         <div className={tooltipClassByPosition[tooltipPosition]}>
