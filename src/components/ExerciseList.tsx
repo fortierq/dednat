@@ -1,11 +1,13 @@
 // Exercise list and card components
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Exercise, RuleType } from '../exercises';
+import { Exercise } from '../exercises';
 import { FormulaParser } from '../formulas';
 import { useLanguage } from '../i18n';
+import { RULE_OPERATORS, RuleOperator } from '../rules';
 import { Latex } from './Latex';
 import { Modal } from './Modal';
+import { SyntaxHelpBadge } from './SyntaxHelpBadge';
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -51,47 +53,15 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, onClick }) => {
   );
 };
 
-const SyntaxHelpBadge: React.FC<{ text: string }> = ({ text }) => {
-  const { language } = useLanguage();
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const timeoutId = window.setTimeout(() => {
-      setIsOpen(false);
-    }, 5000);
-    return () => window.clearTimeout(timeoutId);
-  }, [isOpen]);
-
-  return (
-    <div className="relative inline-flex shrink-0 items-center">
-      <button
-        type="button"
-        className="modal-btn-cancel"
-        aria-label={text}
-        aria-expanded={isOpen}
-        onClick={() => setIsOpen((prev) => !prev)}
-      >
-        {language === 'fr' ? 'Aide' : 'Help'}
-      </button>
-      {isOpen && (
-        <div className="absolute left-full top-1/2 z-50 ml-2 w-56 -translate-y-1/2 rounded-lg border-2 border-slate-200 bg-white p-2 text-xs text-slate-700 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-          {text}
-        </div>
-      )}
-    </div>
-  );
-};
-
 interface FilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenCustomSequent: () => void;
   onShuffleExercises: () => void;
   selectedDifficulties: Set<DifficultyFilter>;
-  selectedOperators: Set<OperatorFilter>;
+  selectedOperators: Set<RuleOperator>;
   onDifficultyToggle: (diff: DifficultyFilter) => void;
-  onOperatorToggle: (operator: OperatorFilter) => void;
+  onOperatorToggle: (operator: RuleOperator) => void;
   exerciseCount: number;
   totalCount: number;
   drawerWidth: number;
@@ -99,26 +69,14 @@ interface FilterDrawerProps {
 }
 
 type DifficultyFilter = Exercise['difficulty'];
-
-const operatorOptions = ['impl', 'and', 'or', 'neg', 'absurd', 'raa'] as const;
-type OperatorFilter = typeof operatorOptions[number];
 const difficultyOptions: DifficultyFilter[] = ['easy', 'medium', 'hard'];
-const operatorLatexByFilter: Record<OperatorFilter, string> = {
+const operatorLatexByFilter: Record<RuleOperator, string> = {
   impl: '\\to',
   and: '\\wedge',
   or: '\\vee',
   neg: '\\neg',
   absurd: '\\bot',
   raa: '\\mathrm{raa}'
-};
-
-const mapRuleToOperator = (rule: RuleType): OperatorFilter => {
-  if (rule.startsWith('\\to')) return 'impl';
-  if (rule.startsWith('\\wedge')) return 'and';
-  if (rule.startsWith('\\vee')) return 'or';
-  if (rule.startsWith('\\neg')) return 'neg';
-  if (rule === '\\bot_e') return 'absurd';
-  return 'raa';
 };
 
 const FilterDrawer: React.FC<FilterDrawerProps> = ({
@@ -228,7 +186,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
                 {t.rulesUsed}
               </h4>
               <div className="grid grid-cols-2 gap-2">
-                {operatorOptions.map(operator => (
+                {RULE_OPERATORS.map(operator => (
                   <label key={operator} className="flex items-center justify-start gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                     <input
                       type="checkbox"
@@ -303,7 +261,7 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
 }) => {
   const { t } = useLanguage();
   const [selectedDifficulties, setSelectedDifficulties] = useState<Set<DifficultyFilter>>(new Set(difficultyOptions));
-  const [selectedOperators, setSelectedOperators] = useState<Set<OperatorFilter>>(new Set(operatorOptions));
+  const [selectedOperators, setSelectedOperators] = useState<Set<RuleOperator>>(new Set(RULE_OPERATORS));
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [customGoal, setCustomGoal] = useState('');
   const [customHypotheses, setCustomHypotheses] = useState('');
@@ -315,8 +273,11 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
       if (selectedDifficulties.size > 0 && !selectedDifficulties.has(ex.difficulty)) {
         return false;
       }
-      // Filter by rules (exercise must use at least one selected rule)
-      if (selectedOperators.size > 0 && !ex.rules.some(r => selectedOperators.has(mapRuleToOperator(r)))) {
+      // Filter by rules (exercise is shown only if all required rules are enabled)
+      if (selectedOperators.size === 0) {
+        return false;
+      }
+      if (ex.rules.some(r => !selectedOperators.has(r))) {
         return false;
       }
       return true;
@@ -341,7 +302,7 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
     });
   };
 
-  const handleOperatorToggle = (operator: OperatorFilter) => {
+  const handleOperatorToggle = (operator: RuleOperator) => {
     setSelectedOperators(prev => {
       const next = new Set(prev);
       if (next.has(operator)) {
@@ -354,8 +315,8 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
   };
 
   const handleClearFilters = () => {
-    setSelectedDifficulties(new Set());
-    setSelectedOperators(new Set());
+    setSelectedDifficulties(new Set(difficultyOptions));
+    setSelectedOperators(new Set(RULE_OPERATORS));
   };
 
   const handleCreateCustomSequent = () => {

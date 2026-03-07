@@ -8,13 +8,6 @@ export class Sequent {
         public readonly goal: Formula
     ) {}
 
-    toDisplayString(): string {
-        const contextStr = this.context.length > 0 
-            ? this.context.map(f => f.toDisplayString()).join(', ')
-            : '';
-        return `${contextStr} ⊢ ${this.goal.toDisplayString()}`;
-    }
-
     clone(): Sequent {
         return new Sequent(
             this.context.map(f => f.clone()),

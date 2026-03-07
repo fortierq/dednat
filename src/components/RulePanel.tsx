@@ -4,9 +4,10 @@ import React from 'react';
 import { Latex } from './Latex';
 import { useLanguage } from '../i18n';
 import { panelRuleUiByRule, PanelRuleName } from '../ruleLabels';
+import { ELIMINATION_RULES, INTRO_RULES, OTHER_RULES } from '../rules';
 
 interface RulePanelProps {
-  onRuleClick: (rule: string) => void;
+  onRuleClick: (rule: PanelRuleName) => void;
   className?: string;
   compact?: boolean;
   activeRule?: string;
@@ -14,7 +15,7 @@ interface RulePanelProps {
 
 interface RuleButtonProps {
   rule: PanelRuleName;
-  onClick: (rule: string) => void;
+  onClick: (rule: PanelRuleName) => void;
   compact?: boolean;
   isActive?: boolean;
 }
@@ -67,24 +68,6 @@ const RuleButton: React.FC<RuleButtonProps> = ({
 export const RulePanel: React.FC<RulePanelProps> = ({ onRuleClick, className = '', compact = false, activeRule }) => {
   const { t } = useLanguage();
 
-  const introRules: PanelRuleName[] = [
-    'impl-intro',
-    'and-intro',
-    'or-intro-left',
-    'or-intro-right',
-    'neg-intro'
-  ];
-
-  const eliminationRules: PanelRuleName[] = [
-    'impl-elim',
-    'and-elim-left',
-    'and-elim-right',
-    'or-elim',
-    'neg-elim'
-  ];
-
-  const otherRules: PanelRuleName[] = ['axiom', 'absurd', 'raa'];
-
   if (compact) {
     return (
       <div className={`bg-white dark:bg-slate-800 rounded-xl px-2 py-4 mb-4 ${className}`}>
@@ -92,7 +75,7 @@ export const RulePanel: React.FC<RulePanelProps> = ({ onRuleClick, className = '
           <div>
             <h4 className="font-semibold text-slate-700 dark:text-slate-200 mb-3 text-xs uppercase tracking-wide text-center">{t.introductionRules}</h4>
             <div className="grid grid-cols-1 gap-2">
-              {introRules.map((rule) => (
+              {INTRO_RULES.map((rule) => (
                 <RuleButton
                   key={rule}
                   rule={rule}
@@ -107,7 +90,7 @@ export const RulePanel: React.FC<RulePanelProps> = ({ onRuleClick, className = '
           <div>
             <h4 className="font-semibold text-slate-700 dark:text-slate-200 mb-3 text-xs uppercase tracking-wide text-center">{t.eliminationRules}</h4>
             <div className="grid grid-cols-1 gap-2">
-              {eliminationRules.map((rule) => (
+              {ELIMINATION_RULES.map((rule) => (
                 <RuleButton
                   key={rule}
                   rule={rule}
@@ -122,7 +105,7 @@ export const RulePanel: React.FC<RulePanelProps> = ({ onRuleClick, className = '
           <div className="col-span-2 pt-2">
             <h4 className="font-semibold text-slate-700 dark:text-slate-200 mb-3 text-xs uppercase tracking-wide text-center">{t.otherRules}</h4>
             <div className="grid grid-cols-2 gap-2">
-              {otherRules.map((rule) => (
+              {OTHER_RULES.map((rule) => (
                 <RuleButton
                   key={rule}
                   rule={rule}
@@ -146,7 +129,7 @@ export const RulePanel: React.FC<RulePanelProps> = ({ onRuleClick, className = '
             {t.introductionRules}
           </h4>
           <div className="flex flex-wrap gap-2">
-            {introRules.map((rule) => (
+            {INTRO_RULES.map((rule) => (
               <RuleButton
                 key={rule}
                 rule={rule}
@@ -161,7 +144,7 @@ export const RulePanel: React.FC<RulePanelProps> = ({ onRuleClick, className = '
             {t.eliminationRules}
           </h4>
           <div className="flex flex-wrap gap-2">
-            {eliminationRules.map((rule) => (
+            {ELIMINATION_RULES.map((rule) => (
               <RuleButton
                 key={rule}
                 rule={rule}
@@ -176,7 +159,7 @@ export const RulePanel: React.FC<RulePanelProps> = ({ onRuleClick, className = '
             {t.otherRules}
           </h4>
           <div className="flex flex-wrap gap-2">
-            {otherRules.map((rule) => (
+            {OTHER_RULES.map((rule) => (
               <RuleButton
                 key={rule}
                 rule={rule}

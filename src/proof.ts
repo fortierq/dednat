@@ -1,15 +1,8 @@
 // Proof tree structure and logic with full sequents
 
 import { Formula } from './formulas';
+import { RuleName } from './rules';
 import { Sequent } from './sequent';
-
-export type RuleName = 
-    | 'axiom' 
-    | 'impl-intro' | 'impl-elim' 
-    | 'and-intro' | 'and-elim-left' | 'and-elim-right'
-    | 'or-intro-left' | 'or-intro-right' | 'or-elim'
-    | 'neg-intro' | 'neg-elim'
-    | 'absurd' | 'raa';
 
 export interface DischargedAssumption {
     formula: Formula;

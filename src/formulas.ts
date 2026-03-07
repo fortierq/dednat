@@ -2,6 +2,17 @@
 
 export type FormulaType = 'var' | 'and' | 'or' | 'impl' | 'neg' | 'bottom';
 
+const FORMULA_PRECEDENCE: Record<FormulaType, number> = {
+    'var': 100,
+    'bottom': 100,
+    'neg': 90,
+    'and': 70,
+    'or': 60,
+    'impl': 50
+};
+
+type FormulaRenderMode = 'text' | 'latex';
+
 export class Formula {
     constructor(
         public readonly type: FormulaType,
@@ -88,58 +99,31 @@ export class Formula {
     }
 
     private toLatexWithPrecedence(parentPrecedence: number): string {
-        const precedence: Record<FormulaType, number> = {
-            'var': 100,
-            'bottom': 100,
-            'neg': 90,
-            'and': 70,
-            'or': 60,
-            'impl': 50
-        };
-
-        const currentPrecedence = precedence[this.type];
-        let result: string;
-
-        switch (this.type) {
-            case 'var':
-                result = this.name;
-                break;
-            case 'bottom':
-                result = '\\bot';
-                break;
-            case 'neg':
-                result = `\\neg ${this.inner.toLatexWithPrecedence(currentPrecedence)}`;
-                break;
-            case 'and':
-                result = `${this.left.toLatexWithPrecedence(currentPrecedence)} \\land ${this.right.toLatexWithPrecedence(currentPrecedence + 1)}`;
-                break;
-            case 'or':
-                result = `${this.left.toLatexWithPrecedence(currentPrecedence)} \\lor ${this.right.toLatexWithPrecedence(currentPrecedence + 1)}`;
-                break;
-            case 'impl':
-                result = `${this.left.toLatexWithPrecedence(currentPrecedence + 1)} \\to ${this.right.toLatexWithPrecedence(currentPrecedence)}`;
-                break;
-            default:
-                result = '?';
-        }
-
-        if (currentPrecedence < parentPrecedence) {
-            return `(${result})`;
-        }
-        return result;
+        return this.formatWithPrecedence(parentPrecedence, 'latex');
     }
 
     private toStringWithPrecedence(parentPrecedence: number): string {
-        const precedence: Record<FormulaType, number> = {
-            'var': 100,
-            'bottom': 100,
-            'neg': 90,
-            'and': 70,
-            'or': 60,
-            'impl': 50
-        };
+        return this.formatWithPrecedence(parentPrecedence, 'text');
+    }
 
-        const currentPrecedence = precedence[this.type];
+    private formatWithPrecedence(parentPrecedence: number, mode: FormulaRenderMode): string {
+        const currentPrecedence = FORMULA_PRECEDENCE[this.type];
+        const tokens = mode === 'latex'
+            ? {
+                bottom: '\\bot',
+                neg: '\\neg ',
+                and: ' \\land ',
+                or: ' \\lor ',
+                impl: ' \\to '
+            }
+            : {
+                bottom: '0',
+                neg: '!',
+                and: ' & ',
+                or: ' | ',
+                impl: ' -> '
+            };
+
         let result: string;
 
         switch (this.type) {
@@ -147,19 +131,19 @@ export class Formula {
                 result = this.name;
                 break;
             case 'bottom':
-                result = '0';
+                result = tokens.bottom;
                 break;
             case 'neg':
-                result = `!${this.inner.toStringWithPrecedence(currentPrecedence)}`;
+                result = `${tokens.neg}${this.inner.formatWithPrecedence(currentPrecedence, mode)}`;
                 break;
             case 'and':
-                result = `${this.left.toStringWithPrecedence(currentPrecedence)} & ${this.right.toStringWithPrecedence(currentPrecedence + 1)}`;
+                result = `${this.left.formatWithPrecedence(currentPrecedence, mode)}${tokens.and}${this.right.formatWithPrecedence(currentPrecedence + 1, mode)}`;
                 break;
             case 'or':
-                result = `${this.left.toStringWithPrecedence(currentPrecedence)} | ${this.right.toStringWithPrecedence(currentPrecedence + 1)}`;
+                result = `${this.left.formatWithPrecedence(currentPrecedence, mode)}${tokens.or}${this.right.formatWithPrecedence(currentPrecedence + 1, mode)}`;
                 break;
             case 'impl':
-                result = `${this.left.toStringWithPrecedence(currentPrecedence + 1)} -> ${this.right.toStringWithPrecedence(currentPrecedence)}`;
+                result = `${this.left.formatWithPrecedence(currentPrecedence + 1, mode)}${tokens.impl}${this.right.formatWithPrecedence(currentPrecedence, mode)}`;
                 break;
             default:
                 result = '?';

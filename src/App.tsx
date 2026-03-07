@@ -4,11 +4,11 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Formula, FormulaParser } from './formulas';
 import { ProofTree, ProofResult, ProofNode, ProofMessageKey } from './proof';
 import { Exercise, ParsedExercise, exercises, parseExercise } from './exercises';
-import { 
-  ExerciseList, 
-  ProofNodeDisplay,
-  RulePanel
-} from './components';
+import { ModalRuleName, isModalRuleName, RuleName } from './rules';
+import { ExerciseList } from './components/ExerciseList';
+import { ProofNodeDisplay } from './components/ProofTree';
+import { RulePanel } from './components/RulePanel';
+import { SyntaxHelpBadge } from './components/SyntaxHelpBadge';
 import { useLanguage, LanguageSelector } from './i18n';
 
 type MessageType = 'success' | 'error' | 'info';
@@ -18,46 +18,12 @@ interface Message {
   type: MessageType;
 }
 
-type ModalAction = 'impl-elim' | 'and-elim-left' | 'and-elim-right' | 'or-elim' | 'neg-elim';
-
 interface ModalConfig {
   placeholder: string;
   formulaTemplate?: string;
   variableNames?: string[];
-  action: ModalAction;
+  action: ModalRuleName;
 }
-
-const SyntaxHelpBadge: React.FC<{ text: string }> = ({ text }) => {
-  const { language } = useLanguage();
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const timeoutId = window.setTimeout(() => {
-      setIsOpen(false);
-    }, 5000);
-    return () => window.clearTimeout(timeoutId);
-  }, [isOpen]);
-
-  return (
-    <div className="relative inline-flex shrink-0 items-center">
-      <button
-        type="button"
-        className="modal-btn-cancel"
-        aria-label={text}
-        aria-expanded={isOpen}
-        onClick={() => setIsOpen((prev) => !prev)}
-      >
-        {language === 'fr' ? 'Aide' : 'Help'}
-      </button>
-      {isOpen && (
-        <div className="absolute left-0 top-full z-50 mt-2 w-56 rounded-lg border-2 border-slate-200 bg-white p-2 text-xs text-slate-700 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-          {text}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const App: React.FC = () => {
   const { t } = useLanguage();
@@ -129,8 +95,7 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const selectExercise = useCallback((exercise: Exercise) => {
-    const parsed = parseExercise(exercise);
+  const startExercise = useCallback((exercise: Exercise, parsed: ParsedExercise) => {
     const tree = new ProofTree(parsed.goalFormula, parsed.hypothesesFormulas, proofMessages());
     const isSmallScreen = window.matchMedia('(max-width: 767px)').matches;
     setCurrentExercise(exercise);
@@ -143,9 +108,13 @@ const App: React.FC = () => {
     setMessage(null);
   }, [proofMessages]);
 
+  const selectExercise = useCallback((exercise: Exercise) => {
+    const parsed = parseExercise(exercise);
+    startExercise(exercise, parsed);
+  }, [startExercise]);
+
   const createCustomSequent = useCallback((goal: string, hypotheses: string[]) => {
     try {
-      const isSmallScreen = window.matchMedia('(max-width: 767px)').matches;
       const customExercise: Exercise = {
         id: Date.now(),
         goal,
@@ -160,19 +129,11 @@ const App: React.FC = () => {
         hypothesesFormulas: hypotheses.map(h => FormulaParser.parse(h))
       };
 
-      const tree = new ProofTree(parsed.goalFormula, parsed.hypothesesFormulas, proofMessages());
-      setCurrentExercise(customExercise);
-      setParsedExercise(parsed);
-      setProofTree(tree);
-      proofTreeRef.current = tree;
-      setIsRulesDrawerOpen(!isSmallScreen);
-      setIsFiltersDrawerOpen(false);
-      setModalState(null);
-      setMessage(null);
+      startExercise(customExercise, parsed);
     } catch (e) {
       showMessage(`${t.invalidFormula}: ${(e as Error).message}`, 'error');
     }
-  }, [proofMessages, showMessage, t]);
+  }, [startExercise, showMessage, t]);
 
   const resetProof = useCallback(() => {
     if (parsedExercise) {
@@ -336,7 +297,7 @@ const App: React.FC = () => {
     return () => window.clearTimeout(timeoutId);
   }, [modalState, isRulesDrawerOpen]);
 
-  const applyRule = useCallback((ruleName: string) => {
+  const applyRule = useCallback((ruleName: RuleName) => {
     setModalState(null);
 
     if (!proofTree || !proofTree.selectedNode) {
@@ -446,13 +407,9 @@ const App: React.FC = () => {
     handleResult(result);
   }, [proofTree, showMessage, handleResult, t]);
 
-  const handleRuleClick = useCallback((ruleName: string) => {
+  const handleRuleClick = useCallback((ruleName: RuleName) => {
     applyRule(ruleName);
-    const requiresInlineForm = ruleName === 'impl-elim'
-      || ruleName === 'and-elim-left'
-      || ruleName === 'and-elim-right'
-      || ruleName === 'or-elim'
-      || ruleName === 'neg-elim';
+    const requiresInlineForm = isModalRuleName(ruleName);
 
     if (window.matchMedia('(max-width: 767px)').matches && !requiresInlineForm) {
       setIsRulesDrawerOpen(false);
@@ -725,7 +682,7 @@ const App: React.FC = () => {
             {modalState && (
               <div className="mx-3 mb-2">
                 <div className="flex gap-2 justify-center mt-0.5">
-                  <SyntaxHelpBadge text={t.customSequentSyntaxHelp} />
+                  <SyntaxHelpBadge text={t.customSequentSyntaxHelp} tooltipPosition="bottom" />
                   <button className="modal-btn-cancel" onClick={() => setModalState(null)}>{t.cancel}</button>
                   <button className="modal-btn-confirm" onClick={submitPanelRuleInput}>{t.confirm}</button>
                 </div>

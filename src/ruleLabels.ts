@@ -1,19 +1,6 @@
-import { RuleName } from './proof';
+import { RuleName } from './rules';
 
-export type PanelRuleName =
-  | 'impl-intro'
-  | 'impl-elim'
-  | 'and-intro'
-  | 'and-elim-left'
-  | 'and-elim-right'
-  | 'or-intro-left'
-  | 'or-intro-right'
-  | 'or-elim'
-  | 'neg-intro'
-  | 'neg-elim'
-  | 'absurd'
-  | 'raa'
-  | 'axiom';
+export type PanelRuleName = RuleName;
 
 export interface PanelRuleUi {
   imageSrc: string;
