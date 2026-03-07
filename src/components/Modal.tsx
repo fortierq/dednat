@@ -1,7 +1,6 @@
 // Shared modal shell component
 
 import React from 'react';
-import { Latex } from './Latex';
 
 interface ModalProps {
   isOpen: boolean;
