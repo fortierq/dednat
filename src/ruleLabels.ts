@@ -32,7 +32,7 @@ const panelRuleSpecByRule: Record<PanelRuleName, PanelRuleSpec> = {
   'or-elim': { widthPct: 100, latexLabel: '\\vee_{e}' },
   'neg-intro': { widthPct: 46, latexLabel: '\\neg_{i}' },
   'neg-elim': { widthPct: 77, latexLabel: '\\neg_{e}' },
-  'bot_elim': { widthPct: 39, latexLabel: '\\bot_{e}' },
+  'bot-elim': { widthPct: 39, latexLabel: '\\bot_{e}' },
   'raa': { widthPct: 56, latexLabel: '\\mathrm{raa}' }
 };
 

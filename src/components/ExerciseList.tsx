@@ -1,13 +1,13 @@
 // Exercise list and card components
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { Exercise, getExerciseKey } from '../exercises';
-import { FormulaParser } from '../formulas';
-import { useLanguage } from '../i18n';
-import { RULE_OPERATORS, RuleOperator } from '../rules';
-import { Latex } from './Latex';
-import { Modal } from './Modal';
-import { SyntaxHelpBadge } from './SyntaxHelpBadge';
+import React, { useState, useMemo, useEffect } from "react";
+import { Exercise, getExerciseKey } from "../exercises";
+import { FormulaParser } from "../formulas";
+import { useLanguage } from "../i18n";
+import { RULE_OPERATORS, RuleOperator } from "../rules";
+import { Latex } from "./Latex";
+import { Modal } from "./Modal";
+import { SyntaxHelpBadge } from "./SyntaxHelpBadge";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -16,23 +16,31 @@ interface ExerciseCardProps {
 
 const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, onClick }) => {
   const { t } = useLanguage();
-  
+
   const getGoalLatex = () => {
     try {
       const goal = FormulaParser.parse(exercise.goal);
-      const hypotheses = exercise.hypotheses.map(h => FormulaParser.parse(h));
-      
+      const hypotheses = exercise.hypotheses.map((h) => FormulaParser.parse(h));
+
       if (hypotheses.length > 0) {
-        return hypotheses.map(h => h.toLatex()).join(', ') + ' \\vdash ' + goal.toLatex();
+        return (
+          hypotheses.map((h) => h.toLatex()).join(", ") +
+          " \\vdash " +
+          goal.toLatex()
+        );
       }
-      return '\\vdash ' + goal.toLatex();
+      return "\\vdash " + goal.toLatex();
     } catch {
       return exercise.goal;
     }
   };
 
-  const difficultyLabel = exercise.difficulty === 'easy' ? t.easy : 
-                          exercise.difficulty === 'medium' ? t.medium : t.hard;
+  const difficultyLabel =
+    exercise.difficulty === "easy"
+      ? t.easy
+      : exercise.difficulty === "medium"
+        ? t.medium
+        : t.hard;
 
   return (
     <button
@@ -45,7 +53,9 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, onClick }) => {
         <div className="text-base sm:text-lg text-slate-900 dark:text-slate-100 min-w-0 overflow-hidden">
           <Latex math={getGoalLatex()} className="exercise-card-math" />
         </div>
-        <span className={`difficulty-badge ${exercise.difficulty} shrink-0 self-start sm:self-auto`}>
+        <span
+          className={`difficulty-badge ${exercise.difficulty} shrink-0 self-start sm:self-auto`}
+        >
           {difficultyLabel}
         </span>
       </div>
@@ -68,15 +78,15 @@ interface FilterDrawerProps {
   onDrawerWidthChange: (width: number) => void;
 }
 
-type DifficultyFilter = Exercise['difficulty'];
-const difficultyOptions: DifficultyFilter[] = ['easy', 'medium', 'hard'];
+type DifficultyFilter = Exercise["difficulty"];
+const difficultyOptions: DifficultyFilter[] = ["easy", "medium", "hard"];
 const operatorLatexByFilter: Record<RuleOperator, string> = {
-  imp: '\\to',
-  and: '\\wedge',
-  or: '\\vee',
-  neg: '\\neg',
-  bot_elim: '\\bot',
-  raa: '\\mathrm{raa}'
+  imp: "\\to",
+  and: "\\wedge",
+  or: "\\vee",
+  neg: "\\neg",
+  bot: "\\bot",
+  raa: "\\mathrm{raa}",
 };
 
 const FilterDrawer: React.FC<FilterDrawerProps> = ({
@@ -91,7 +101,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
   exerciseCount,
   totalCount,
   drawerWidth,
-  onDrawerWidthChange
+  onDrawerWidthChange,
 }) => {
   const { t } = useLanguage();
   const [isDrawerResizing, setIsDrawerResizing] = useState(false);
@@ -99,7 +109,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
   const difficultyLabels: Record<DifficultyFilter, string> = {
     easy: t.easy,
     medium: t.medium,
-    hard: t.hard
+    hard: t.hard,
   };
 
   useEffect(() => {
@@ -114,63 +124,84 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
       setIsDrawerResizing(false);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDrawerResizing, onDrawerWidthChange]);
 
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 md:hidden ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
       />
-      
+
       {/* Drawer */}
-      <div className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 dark:border-r-2 dark:border-slate-700 z-40 transform transition-transform duration-300 ease-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`} style={{ width: mobileDrawerWidth, maxWidth: `${drawerWidth}px` }}>
+      <div
+        className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 dark:border-r-2 dark:border-slate-700 z-40 transform transition-transform duration-300 ease-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{ width: mobileDrawerWidth, maxWidth: `${drawerWidth}px` }}
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="relative flex items-center justify-center p-4 border-b-2 border-slate-200 dark:border-slate-700">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 text-center">{t.filters}</h3>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 text-center">
+              {t.filters}
+            </h3>
             <button
               onClick={onClose}
               className="absolute right-4 p-2 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
             >
-              <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-5 h-5 text-slate-600 dark:text-slate-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
-          
+
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-4">
-
             {/* Difficulty Filter */}
             <div className="mb-6 w-full">
               <h4 className="font-semibold text-slate-700 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide text-center">
                 {t.difficulty}
               </h4>
               <div className="space-y-2">
-                {difficultyOptions.map(diff => (
-                  <label key={diff} className="flex items-center justify-start gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+                {difficultyOptions.map((diff) => (
+                  <label
+                    key={diff}
+                    className="flex items-center justify-start gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                  >
                     <input
                       type="checkbox"
                       checked={selectedDifficulties.has(diff)}
                       onChange={() => onDifficultyToggle(diff)}
                       className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    <span className={`text-sm group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors ${
-                      selectedDifficulties.has(diff) ? 'text-slate-900 dark:text-slate-100 font-medium' : 'text-slate-900 dark:text-slate-100'
-                    }`}>
+                    <span
+                      className={`text-sm group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors ${
+                        selectedDifficulties.has(diff)
+                          ? "text-slate-900 dark:text-slate-100 font-medium"
+                          : "text-slate-900 dark:text-slate-100"
+                      }`}
+                    >
                       {difficultyLabels[diff]}
                     </span>
                   </label>
@@ -186,17 +217,24 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
                 {t.rulesUsed}
               </h4>
               <div className="grid grid-cols-2 gap-2">
-                {RULE_OPERATORS.map(operator => (
-                  <label key={operator} className="flex items-center justify-start gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+                {RULE_OPERATORS.map((operator) => (
+                  <label
+                    key={operator}
+                    className="flex items-center justify-start gap-3 cursor-pointer group p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                  >
                     <input
                       type="checkbox"
                       checked={selectedOperators.has(operator)}
                       onChange={() => onOperatorToggle(operator)}
                       className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    <span className={`text-sm font-math group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors ${
-                      selectedOperators.has(operator) ? 'text-slate-900 dark:text-slate-100 font-medium' : 'text-slate-900 dark:text-slate-100'
-                    }`}>
+                    <span
+                      className={`text-sm font-math group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors ${
+                        selectedOperators.has(operator)
+                          ? "text-slate-900 dark:text-slate-100 font-medium"
+                          : "text-slate-900 dark:text-slate-100"
+                      }`}
+                    >
                       <Latex math={operatorLatexByFilter[operator]} />
                     </span>
                   </label>
@@ -257,27 +295,36 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
   drawerWidth,
   onDrawerWidthChange,
   isDrawerOpen,
-  onDrawerOpenChange
+  onDrawerOpenChange,
 }) => {
   const { t } = useLanguage();
-  const [selectedDifficulties, setSelectedDifficulties] = useState<Set<DifficultyFilter>>(new Set(difficultyOptions));
-  const [selectedOperators, setSelectedOperators] = useState<Set<RuleOperator>>(new Set(RULE_OPERATORS));
+  const [selectedDifficulties, setSelectedDifficulties] = useState<
+    Set<DifficultyFilter>
+  >(new Set(difficultyOptions));
+  const [selectedOperators, setSelectedOperators] = useState<Set<RuleOperator>>(
+    new Set(RULE_OPERATORS),
+  );
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
-  const [customGoal, setCustomGoal] = useState('');
-  const [customHypotheses, setCustomHypotheses] = useState('');
-  const [shuffledExercises, setShuffledExercises] = useState<Exercise[] | null>(null);
+  const [customGoal, setCustomGoal] = useState("");
+  const [customHypotheses, setCustomHypotheses] = useState("");
+  const [shuffledExercises, setShuffledExercises] = useState<Exercise[] | null>(
+    null,
+  );
 
   const filteredExercises = useMemo(() => {
-    return exercises.filter(ex => {
+    return exercises.filter((ex) => {
       // Filter by difficulty
-      if (selectedDifficulties.size > 0 && !selectedDifficulties.has(ex.difficulty)) {
+      if (
+        selectedDifficulties.size > 0 &&
+        !selectedDifficulties.has(ex.difficulty)
+      ) {
         return false;
       }
       // Filter by rules (exercise is shown only if all required rules are enabled)
       if (selectedOperators.size === 0) {
         return false;
       }
-      if (ex.rules.some(r => !selectedOperators.has(r))) {
+      if (ex.rules.some((r) => !selectedOperators.has(r))) {
         return false;
       }
       return true;
@@ -291,7 +338,7 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
   const displayedExercises = shuffledExercises ?? filteredExercises;
 
   const handleDifficultyToggle = (diff: DifficultyFilter) => {
-    setSelectedDifficulties(prev => {
+    setSelectedDifficulties((prev) => {
       const next = new Set(prev);
       if (next.has(diff)) {
         next.delete(diff);
@@ -303,7 +350,7 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
   };
 
   const handleOperatorToggle = (operator: RuleOperator) => {
-    setSelectedOperators(prev => {
+    setSelectedOperators((prev) => {
       const next = new Set(prev);
       if (next.has(operator)) {
         next.delete(operator);
@@ -324,14 +371,14 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
     if (!goal) return;
 
     const hypotheses = customHypotheses
-      .split(',')
-      .map(h => h.trim())
+      .split(",")
+      .map((h) => h.trim())
       .filter(Boolean);
 
     onCreateCustomSequent(goal, hypotheses);
     setIsCustomModalOpen(false);
-    setCustomGoal('');
-    setCustomHypotheses('');
+    setCustomGoal("");
+    setCustomHypotheses("");
   };
 
   const handleShuffleExercises = () => {
@@ -373,7 +420,12 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <SyntaxHelpBadge text={t.customSequentSyntaxHelp} />
-          <button className="modal-btn-cancel" onClick={() => setIsCustomModalOpen(false)}>{t.cancel}</button>
+          <button
+            className="modal-btn-cancel"
+            onClick={() => setIsCustomModalOpen(false)}
+          >
+            {t.cancel}
+          </button>
           <button
             className="modal-btn-confirm disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleCreateCustomSequent}
@@ -403,17 +455,19 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({
       {/* Exercise Grid */}
       {filteredExercises.length > 0 ? (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
-          {displayedExercises.map(exercise => (
-            <ExerciseCard 
-              key={getExerciseKey(exercise)} 
-              exercise={exercise} 
+          {displayedExercises.map((exercise) => (
+            <ExerciseCard
+              key={getExerciseKey(exercise)}
+              exercise={exercise}
               onClick={() => onSelect(exercise)}
             />
-          ))}     
+          ))}
         </div>
       ) : (
         <div className="bg-white border-2 border-slate-200 dark:bg-slate-800 dark:border-2 dark:border-slate-700 rounded-xl p-8 text-center shadow-lg">
-          <p className="text-slate-500 dark:text-slate-300 text-lg">{t.noExercisesMatch}</p>
+          <p className="text-slate-500 dark:text-slate-300 text-lg">
+            {t.noExercisesMatch}
+          </p>
           <button
             onClick={handleClearFilters}
             className="mt-4 px-4 py-2 text-sm text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"

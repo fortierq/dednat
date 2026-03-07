@@ -9,7 +9,6 @@
         "terminal.integrated.defaultProfile.linux": "bash"
       },
       "extensions": [
-        "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss"
       ]
     }

@@ -389,7 +389,7 @@ export class ProofTree {
 
         this.saveState();
         const inner = goal.inner;
-        const newSequent = node.sequent.addToContext(inner).withGoal(Formula.bottom());
+        const newSequent = node.sequent.addToContext(inner).withGoal(Formula.bot());
         
         const premise = new ProofNode(newSequent);
         node.rule = 'neg-intro';
@@ -405,7 +405,7 @@ export class ProofTree {
         
         const node = this.selectedNode;
         
-        if (node.sequent.goal.type !== 'bottom') {
+        if (node.sequent.goal.type !== 'bot') {
             return this.fail('goalMustBeFalsum');
         }
 
@@ -428,9 +428,9 @@ export class ProofTree {
         const node = this.selectedNode;
 
         this.saveState();
-        const premise = new ProofNode(node.sequent.withGoal(Formula.bottom()));
+        const premise = new ProofNode(node.sequent.withGoal(Formula.bot()));
         
-        node.rule = 'bot_elim';
+        node.rule = 'bot-elim';
         node.premises = [premise];
         
         this.selectedNode = premise;
@@ -444,7 +444,7 @@ export class ProofTree {
 
         this.saveState();
         const negGoal = Formula.neg(node.sequent.goal);
-        const newSequent = node.sequent.addToContext(negGoal).withGoal(Formula.bottom());
+        const newSequent = node.sequent.addToContext(negGoal).withGoal(Formula.bot());
         
         const premise = new ProofNode(newSequent);
         node.rule = 'raa';

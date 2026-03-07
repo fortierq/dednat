@@ -12,7 +12,7 @@ interface Translations {
   github: string;
   darkMode: string;
   lightMode: string;
-  
+
   // Exercise list
   filters: string;
   difficulty: string;
@@ -24,12 +24,12 @@ interface Translations {
   customSequentSyntaxHelp: string;
   startProof: string;
   randomExercise: string;
-  
+
   // Difficulty levels
   easy: string;
   medium: string;
   hard: string;
-  
+
   // Exercise view
   goal: string;
   hypotheses: string;
@@ -40,16 +40,15 @@ interface Translations {
   resetProof: string;
   undo: string;
   nextExercise: string;
-  
+
   // Rule panel
   inferenceRules: string;
   introductionRules: string;
   eliminationRules: string;
-  otherRules: string;
-  
+
   // Messages
   noGoalSelected: string;
-  noHypothesisMatches: (goal: string) => string;
+  noHypothesisMatches: string;
   goalMustBeFalsum: string;
   unknownRule: string;
   undidLastAction: string;
@@ -68,7 +67,7 @@ interface Translations {
   proofGoalNotDisjunction: string;
   proofSelectedNotDisjunction: string;
   proofGoalNotNegation: string;
-  
+
   // Formula input modal
   confirm: string;
   cancel: string;
@@ -116,11 +115,10 @@ const translations: Record<Language, Translations> = {
     inferenceRules: 'Règles d\'inférence',
     introductionRules: 'Introduction',
     eliminationRules: 'Élimination',
-    otherRules: 'Autres règles',
 
     // Messages
     noGoalSelected: 'Aucun but sélectionné',
-    noHypothesisMatches: (goal) => `Aucune hypothèse ne correspond au but : ${goal}`,
+    noHypothesisMatches: `Aucune hypothèse ne correspond au but`,
     goalMustBeFalsum: 'Le but n\' est pas faux',
     unknownRule: 'Règle inconnue',
     undidLastAction: 'Dernière action annulée',
@@ -186,11 +184,10 @@ const translations: Record<Language, Translations> = {
     inferenceRules: 'Inference Rules',
     introductionRules: 'Introduction',
     eliminationRules: 'Elimination',
-    otherRules: 'Other Rules',
 
     // Messages
     noGoalSelected: 'No goal selected',
-    noHypothesisMatches: (goal) => `No hypothesis matches the goal: ${goal}`,
+    noHypothesisMatches: `No hypothesis matches the goal`,
     goalMustBeFalsum: 'Goal is not false',
     unknownRule: 'Unknown rule',
     undidLastAction: 'Undid last action',
@@ -228,7 +225,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('fr');
-  
+
   const value = {
     language,
     setLanguage,
@@ -254,7 +251,7 @@ export const useLanguage = (): LanguageContextType => {
 export const LanguageSelector: FC = () => {
   const { language, setLanguage } = useLanguage();
   const nextLanguage: Language = language === 'fr' ? 'en' : 'fr';
-  
+
   return (
     <div className="flex items-center">
       <button
@@ -263,19 +260,19 @@ export const LanguageSelector: FC = () => {
         className="w-11 h-11 p-0 rounded-xl border-2 bg-white/15 text-white border-white/30 hover:bg-white/25 hover:border-white/40 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors flex items-center justify-center"
       >
         {language === 'fr' ? (
-        <svg className="w-7 h-5 rounded-sm shadow-sm" viewBox="0 0 24 16" aria-hidden="true">
-          <rect width="8" height="16" x="0" y="0" fill="#1f4aa8" />
-          <rect width="8" height="16" x="8" y="0" fill="#ffffff" />
-          <rect width="8" height="16" x="16" y="0" fill="#d3202a" />
-        </svg>
+          <svg className="w-7 h-5 rounded-sm shadow-sm" viewBox="0 0 24 16" aria-hidden="true">
+            <rect width="8" height="16" x="0" y="0" fill="#1f4aa8" />
+            <rect width="8" height="16" x="8" y="0" fill="#ffffff" />
+            <rect width="8" height="16" x="16" y="0" fill="#d3202a" />
+          </svg>
         ) : (
-        <svg className="w-7 h-5 rounded-sm shadow-sm" viewBox="0 0 24 16" aria-hidden="true">
-          <rect width="24" height="16" fill="#1f4aa8" />
-          <rect x="10" y="0" width="4" height="16" fill="#ffffff" />
-          <rect x="0" y="6" width="24" height="4" fill="#ffffff" />
-          <rect x="11" y="0" width="2" height="16" fill="#d3202a" />
-          <rect x="0" y="7" width="24" height="2" fill="#d3202a" />
-        </svg>
+          <svg className="w-7 h-5 rounded-sm shadow-sm" viewBox="0 0 24 16" aria-hidden="true">
+            <rect width="24" height="16" fill="#1f4aa8" />
+            <rect x="10" y="0" width="4" height="16" fill="#ffffff" />
+            <rect x="0" y="6" width="24" height="4" fill="#ffffff" />
+            <rect x="11" y="0" width="2" height="16" fill="#d3202a" />
+            <rect x="0" y="7" width="24" height="2" fill="#d3202a" />
+          </svg>
         )}
       </button>
     </div>

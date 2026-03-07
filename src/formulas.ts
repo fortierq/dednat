@@ -1,10 +1,10 @@
 // Formula representation and parsing for propositional logic
 
-export type FormulaType = 'var' | 'and' | 'or' | 'imp' | 'neg' | 'bottom';
+export type FormulaType = 'var' | 'and' | 'or' | 'imp' | 'neg' | 'bot';
 
 const FORMULA_PRECEDENCE: Record<FormulaType, number> = {
     'var': 100,
-    'bottom': 100,
+    'bot': 100,
     'neg': 90,
     'and': 70,
     'or': 60,
@@ -39,8 +39,8 @@ export class Formula {
         return new Formula('neg', [inner]);
     }
 
-    static bottom(): Formula {
-        return new Formula('bottom');
+    static bot(): Formula {
+        return new Formula('bot');
     }
 
     get left(): Formula {
@@ -83,7 +83,7 @@ export class Formula {
                 return `(${this.left.toString()} -> ${this.right.toString()})`;
             case 'neg':
                 return `!${this.inner.toString()}`;
-            case 'bottom':
+            case 'bot':
                 return '0';
             default:
                 return '?';
@@ -110,14 +110,14 @@ export class Formula {
         const currentPrecedence = FORMULA_PRECEDENCE[this.type];
         const tokens = mode === 'latex'
             ? {
-                bottom: '\\bot',
+                bot: '\\bot',
                 neg: '\\neg ',
                 and: ' \\land ',
                 or: ' \\lor ',
                 imp: ' \\to '
             }
             : {
-                bottom: '0',
+                bot: '0',
                 neg: '!',
                 and: ' & ',
                 or: ' | ',
@@ -130,8 +130,8 @@ export class Formula {
             case 'var':
                 result = this.name;
                 break;
-            case 'bottom':
-                result = tokens.bottom;
+            case 'bot':
+                result = tokens.bot;
                 break;
             case 'neg':
                 result = `${tokens.neg}${this.inner.formatWithPrecedence(currentPrecedence, mode)}`;
@@ -158,7 +158,7 @@ export class Formula {
     equals(other: Formula | null | undefined): boolean {
         if (!other || this.type !== other.type) return false;
         if (this.type === 'var') return this.name === other.name;
-        if (this.type === 'bottom') return true;
+        if (this.type === 'bot') return true;
         if (this.type === 'neg') return this.inner.equals(other.inner);
         return this.left.equals(other.left) && this.right.equals(other.right);
     }
@@ -167,8 +167,8 @@ export class Formula {
         switch (this.type) {
             case 'var':
                 return Formula.var(this.name);
-            case 'bottom':
-                return Formula.bottom();
+            case 'bot':
+                return Formula.bot();
             case 'neg':
                 return Formula.neg(this.inner.clone());
             case 'and':
@@ -250,11 +250,11 @@ export class FormulaParser {
         }
 
         if (this.match('0') || this.matchWord('false')) {
-            return Formula.bottom();
+            return Formula.bot();
         }
 
         if (this.match('1') || this.matchWord('true')) {
-            return Formula.neg(Formula.bottom());
+            return Formula.neg(Formula.bot());
         }
 
         const start = this.pos;

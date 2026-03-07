@@ -381,19 +381,19 @@ const App: React.FC = () => {
       case 'axiom': {
         const hypotheses = node.sequent.context;
         const matchingHypotheses = hypotheses.filter(h => h.equals(node.sequent.goal));
-        
+
         if (matchingHypotheses.length === 0) {
-          showMessage(t.noHypothesisMatches(node.sequent.goal.toDisplayString()), 'error');
+          showMessage(t.noHypothesisMatches, 'error');
           return;
         }
         result = proofTree.applyAxiom(matchingHypotheses[0]);
         break;
       }
-      
+
       case 'imp-intro':
         result = proofTree.applyImpIntro();
         break;
-      
+
       case 'imp-elim':
         setModalState({
           placeholder: `X -> (${node.sequent.goal.toDisplayString()})`,
@@ -402,11 +402,11 @@ const App: React.FC = () => {
           action: 'imp-elim'
         });
         return;
-      
+
       case 'and-intro':
         result = proofTree.applyAndIntro();
         break;
-      
+
       case 'and-elim-left':
         setModalState({
           placeholder: `(${node.sequent.goal.toDisplayString()}) & Y`,
@@ -415,7 +415,7 @@ const App: React.FC = () => {
           action: 'and-elim-left'
         });
         return;
-      
+
       case 'and-elim-right':
         setModalState({
           placeholder: `X & (${node.sequent.goal.toDisplayString()})`,
@@ -424,15 +424,15 @@ const App: React.FC = () => {
           action: 'and-elim-right'
         });
         return;
-      
+
       case 'or-intro-left':
         result = proofTree.applyOrIntroLeft();
         break;
-      
+
       case 'or-intro-right':
         result = proofTree.applyOrIntroRight();
         break;
-      
+
       case 'or-elim':
         setModalState({
           placeholder: 'X | Y',
@@ -441,13 +441,13 @@ const App: React.FC = () => {
           action: 'or-elim'
         });
         return;
-      
+
       case 'neg-intro':
         result = proofTree.applyNegIntro();
         break;
-      
+
       case 'neg-elim':
-        if (node.sequent.goal.type !== 'bottom') {
+        if (node.sequent.goal.type !== 'bot') {
           showMessage(t.goalMustBeFalsum, 'error');
           return;
         }
@@ -458,15 +458,15 @@ const App: React.FC = () => {
           action: 'neg-elim'
         });
         return;
-      
-      case 'bot_elim':
+
+      case 'bot-elim':
         result = proofTree.applyBotElim();
         break;
-      
+
       case 'raa':
         result = proofTree.applyraa();
         break;
-      
+
       default:
         showMessage(t.unknownRule, 'error');
         return;
@@ -603,13 +603,13 @@ const App: React.FC = () => {
             {/* Controls */}
             <div className="mb-6">
               <div className="grid grid-cols-2 gap-2 sm:gap-3 md:hidden">
-                <button 
+                <button
                   className="px-4 py-2.5 text-sm sm:text-base bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                   onClick={resetProof}
                 >
                   {t.resetProof}
                 </button>
-                <button 
+                <button
                   className="px-4 py-2.5 text-sm sm:text-base bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                   onClick={undo}
                 >
@@ -631,13 +631,13 @@ const App: React.FC = () => {
 
               <div className="hidden md:flex md:flex-wrap md:justify-center md:gap-4">
                 <div className="flex flex-wrap justify-center gap-4">
-                  <button 
+                  <button
                     className="px-6 py-3 bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                     onClick={resetProof}
                   >
                     {t.resetProof}
                   </button>
-                  <button 
+                  <button
                     className="px-6 py-3 bg-white dark:bg-slate-800 text-slate-900 hover:text-blue-700 hover:bg-blue-50 dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border-2 border-slate-200 hover:border-blue-500 dark:border-slate-700 dark:hover:border-slate-500"
                     onClick={undo}
                   >
@@ -664,13 +664,13 @@ const App: React.FC = () => {
                 <div className="inline-flex items-center gap-2 rounded-full border-2 border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-900 shadow-sm dark:border-blue-500/60 dark:bg-blue-900/20 dark:text-blue-100">
                   <span>{t.notationCurrent}:</span>
                   <span className="inline-flex items-center gap-1 align-middle rounded-full bg-white/80 px-2 py-1 dark:bg-slate-900/50">
-                  <Latex math={notationRule.type === 'formula' ? VARPHI_LATEX : GAMMA_LATEX} />
-                  <span>=</span>
-                  <Latex
-                    math={notationRule.type === 'formula'
-                      ? notationRule.formula.toLatex()
-                      : notationRule.formulas.map((formula) => formula.toLatex()).join(', ')}
-                  />
+                    <Latex math={notationRule.type === 'formula' ? VARPHI_LATEX : GAMMA_LATEX} />
+                    <span>=</span>
+                    <Latex
+                      math={notationRule.type === 'formula'
+                        ? notationRule.formula.toLatex()
+                        : notationRule.formulas.map((formula) => formula.toLatex()).join(', ')}
+                    />
                   </span>
                 </div>
               </div>
@@ -678,13 +678,12 @@ const App: React.FC = () => {
 
             {/* Message Area */}
             {message && (
-              <div className={`mb-6 mx-auto inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 md:px-6 md:py-3 min-h-[42px] md:min-h-[50px] text-center font-semibold ${
-                message.type === 'success'
-                  ? 'bg-green-100 border-2 border-green-500 text-green-800 dark:bg-green-900/30 dark:border-green-500 dark:text-green-200'
-                  : message.type === 'error'
-                    ? 'bg-red-100 border-2 border-red-500 text-red-800 dark:bg-red-900/30 dark:border-red-500 dark:text-red-200'
-                    : 'bg-blue-100 border-2 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:border-blue-500 dark:text-blue-200'
-              }`}>
+              <div className={`mb-6 mx-auto inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 md:px-6 md:py-3 min-h-[42px] md:min-h-[50px] text-center font-semibold ${message.type === 'success'
+                ? 'bg-green-100 border-2 border-green-500 text-green-800 dark:bg-green-900/30 dark:border-green-500 dark:text-green-200'
+                : message.type === 'error'
+                  ? 'bg-red-100 border-2 border-red-500 text-red-800 dark:bg-red-900/30 dark:border-red-500 dark:text-red-200'
+                  : 'bg-blue-100 border-2 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:border-blue-500 dark:text-blue-200'
+                }`}>
                 {message.text}
               </div>
             )}
@@ -707,16 +706,14 @@ const App: React.FC = () => {
       {currentExercise && (
         <>
           <div
-            className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 md:hidden ${
-              isRulesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
+            className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 md:hidden ${isRulesDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
             onClick={() => setIsRulesDrawerOpen(false)}
           />
 
           <aside
-            className={`fixed top-0 left-0 h-full flex flex-col bg-white dark:bg-slate-900 dark:border-r dark:border-slate-700 z-40 transform transition-transform duration-300 ease-out ${
-              isRulesDrawerOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}
+            className={`fixed top-0 left-0 h-full flex flex-col bg-white dark:bg-slate-900 dark:border-r dark:border-slate-700 z-40 transform transition-transform duration-300 ease-out ${isRulesDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+              }`}
             style={{ width: mobileDrawerWidth, maxWidth: `${drawerWidth}px` }}
           >
             <div className={`px-3 pt-3 ${modalState ? 'mb-2' : 'mb-4'} grid grid-cols-[2.25rem_1fr_2.25rem] items-center gap-2`}>
@@ -789,9 +786,8 @@ const App: React.FC = () => {
             )}
 
             <RulePanel
-                onRuleClick={handleRuleClick}
+              onRuleClick={handleRuleClick}
               className="mb-0 shadow-none w-full flex-1 overflow-y-auto px-3 pb-3"
-              compact
               activeRule={modalState?.action}
             />
 

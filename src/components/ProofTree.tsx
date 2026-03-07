@@ -9,7 +9,7 @@ import { ruleLabelLatexByProofRule } from '../ruleLabels';
 
 const FORMULA_PRECEDENCE = {
   var: 100,
-  bottom: 100,
+  bot: 100,
   neg: 90,
   and: 70,
   or: 60,
@@ -36,7 +36,7 @@ const renderFormulaLatex = (formula: Formula, notationRule?: NotationRule | null
       case 'var':
         result = currentFormula.name;
         break;
-      case 'bottom':
+      case 'bot':
         result = '\\bot';
         break;
       case 'neg':
@@ -108,8 +108,8 @@ const renderContextLatex = (context: Formula[], notationRule?: NotationRule | nu
   return renderedContext.join(', ');
 };
 
-const SequentDisplay: React.FC<{ 
-  context: Formula[]; 
+const SequentDisplay: React.FC<{
+  context: Formula[];
   goal: Formula;
   isSelected: boolean;
   isComplete: boolean;
@@ -123,7 +123,7 @@ const SequentDisplay: React.FC<{
   else if (isComplete) className += ' completed';
   else className += ' open-goal';
 
-  const contextLatex = context.length > 0 
+  const contextLatex = context.length > 0
     ? renderContextLatex(context, notationRule) + ' '
     : '';
   const sequentLatex = `${contextLatex}\\vdash ${renderFormulaLatex(goal, notationRule)}`;
@@ -161,7 +161,7 @@ export const ProofNodeDisplay: React.FC<ProofNodeDisplayProps> = ({ node, select
     const observer = new ResizeObserver(updateLineWidth);
     if (premisesRef.current) observer.observe(premisesRef.current);
     if (conclusionRef.current) observer.observe(conclusionRef.current);
-    
+
     return () => observer.disconnect();
   }, [node.premises, node.sequent]);
 
@@ -195,8 +195,8 @@ export const ProofNodeDisplay: React.FC<ProofNodeDisplayProps> = ({ node, select
         <div className="node-line-container">
           <div className="flex justify-center">
             <div className="relative inline-flex items-center">
-              <div 
-                className="h-px bg-slate-700 dark:bg-slate-300" 
+              <div
+                className="h-px bg-slate-700 dark:bg-slate-300"
                 style={{ width: `${lineWidth}px`, minWidth: '110px' }}
               />
               <span className="absolute left-full ml-1.5 sm:ml-2 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-bold whitespace-nowrap">
