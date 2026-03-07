@@ -1,457 +1,471 @@
 // Proof tree structure and logic with full sequents
 
-import { Formula } from './formulas';
-import { RuleName } from './rules';
-import { Sequent } from './sequent';
+import { Formula } from "./formulas";
+import { RuleName } from "./rules";
+import { Sequent } from "./sequent";
 
 export interface DischargedAssumption {
-    formula: Formula;
-    label?: string;
+  formula: Formula;
+  label?: string;
 }
 
 export interface DischargedPair {
-    left: Formula;
-    right: Formula;
+  left: Formula;
+  right: Formula;
 }
 
 export class ProofNode {
-    private static nextId = 1;
-    
-    public id: number;
-    public rule: RuleName | null = null;
-    public premises: ProofNode[] = [];
-    public dischargedAssumption: DischargedAssumption | DischargedPair | null = null;
-    public isComplete: boolean = false;
+  private static nextId = 1;
 
-    constructor(public sequent: Sequent) {
-        this.id = ProofNode.nextId++;
+  public id: number;
+  public rule: RuleName | null = null;
+  public premises: ProofNode[] = [];
+  public dischargedAssumption: DischargedAssumption | DischargedPair | null =
+    null;
+  public isComplete: boolean = false;
+
+  constructor(public sequent: Sequent) {
+    this.id = ProofNode.nextId++;
+  }
+
+  static reset(): void {
+    ProofNode.nextId = 1;
+  }
+
+  clone(): ProofNode {
+    const node = new ProofNode(this.sequent.clone());
+    node.id = this.id;
+    node.rule = this.rule;
+    node.premises = [];
+    node.isComplete = this.isComplete;
+
+    if (this.dischargedAssumption) {
+      if ("left" in this.dischargedAssumption) {
+        node.dischargedAssumption = {
+          left: this.dischargedAssumption.left.clone(),
+          right: this.dischargedAssumption.right.clone(),
+        };
+      } else {
+        node.dischargedAssumption = {
+          formula: this.dischargedAssumption.formula.clone(),
+          label: this.dischargedAssumption.label,
+        };
+      }
     }
 
-    static reset(): void {
-        ProofNode.nextId = 1;
-    }
-
-    clone(): ProofNode {
-        const node = new ProofNode(this.sequent.clone());
-        node.id = this.id;
-        node.rule = this.rule;
-        node.premises = [];
-        node.isComplete = this.isComplete;
-        
-        if (this.dischargedAssumption) {
-            if ('left' in this.dischargedAssumption) {
-                node.dischargedAssumption = {
-                    left: this.dischargedAssumption.left.clone(),
-                    right: this.dischargedAssumption.right.clone()
-                };
-            } else {
-                node.dischargedAssumption = {
-                    formula: this.dischargedAssumption.formula.clone(),
-                    label: this.dischargedAssumption.label
-                };
-            }
-        }
-        
-        return node;
-    }
+    return node;
+  }
 }
 
 export interface ProofResult {
-    success: boolean;
-    error?: string;
+  success: boolean;
+  error?: string;
 }
 
 export type ProofMessageKey =
-    | 'noGoalSelected'
-    | 'goalMustBeFalsum'
-    | 'proofHypothesisNotInContext'
-    | 'proofHypothesisGoalMismatch'
-    | 'proofGoalNotImplication'
-    | 'proofSelectedNotImplication'
-    | 'proofImplicationConclusionMismatch'
-    | 'proofGoalNotConjunction'
-    | 'proofSelectedNotConjunction'
-    | 'proofConjunctionLeftMismatch'
-    | 'proofConjunctionRightMismatch'
-    | 'proofGoalNotDisjunction'
-    | 'proofSelectedNotDisjunction'
-    | 'proofGoalNotNegation';
+  | "noGoalSelected"
+  | "goalMustBeFalsum"
+  | "proofHypothesisNotInContext"
+  | "proofHypothesisGoalMismatch"
+  | "proofGoalNotImplication"
+  | "proofSelectedNotImplication"
+  | "proofImplicationConclusionMismatch"
+  | "proofGoalNotConjunction"
+  | "proofSelectedNotConjunction"
+  | "proofConjunctionLeftMismatch"
+  | "proofConjunctionRightMismatch"
+  | "proofGoalNotDisjunction"
+  | "proofSelectedNotDisjunction"
+  | "proofGoalNotNegation";
 
 type ProofMessages = Record<ProofMessageKey, string>;
 
 const defaultProofMessages: ProofMessages = {
-    noGoalSelected: 'No goal selected',
-    goalMustBeFalsum: 'Goal must be \\bot (falsum)',
-    proofHypothesisNotInContext: 'Hypothesis not available in current context',
-    proofHypothesisGoalMismatch: 'Hypothesis does not match the goal',
-    proofGoalNotImplication: 'Goal is not an implication',
-    proofSelectedNotImplication: 'Selected formula is not an implication',
-    proofImplicationConclusionMismatch: 'Conclusion of implication does not match the goal',
-    proofGoalNotConjunction: 'Goal is not a conjunction',
-    proofSelectedNotConjunction: 'Selected formula is not a conjunction',
-    proofConjunctionLeftMismatch: 'Left side of conjunction does not match the goal',
-    proofConjunctionRightMismatch: 'Right side of conjunction does not match the goal',
-    proofGoalNotDisjunction: 'Goal is not a disjunction',
-    proofSelectedNotDisjunction: 'Selected formula is not a disjunction',
-    proofGoalNotNegation: 'Goal is not a negation'
+  noGoalSelected: "No goal selected",
+  goalMustBeFalsum: "Goal must be \\bot (falsum)",
+  proofHypothesisNotInContext: "Hypothesis not available in current context",
+  proofHypothesisGoalMismatch: "Hypothesis does not match the goal",
+  proofGoalNotImplication: "Goal is not an implication",
+  proofSelectedNotImplication: "Selected formula is not an implication",
+  proofImplicationConclusionMismatch:
+    "Conclusion of implication does not match the goal",
+  proofGoalNotConjunction: "Goal is not a conjunction",
+  proofSelectedNotConjunction: "Selected formula is not a conjunction",
+  proofConjunctionLeftMismatch:
+    "Left side of conjunction does not match the goal",
+  proofConjunctionRightMismatch:
+    "Right side of conjunction does not match the goal",
+  proofGoalNotDisjunction: "Goal is not a disjunction",
+  proofSelectedNotDisjunction: "Selected formula is not a disjunction",
+  proofGoalNotNegation: "Goal is not a negation",
 };
 
 interface ProofState {
-    root: ProofNode;
-    selectedId: number;
+  root: ProofNode;
+  selectedId: number;
 }
 
 export class ProofTree {
-    public root: ProofNode;
-    public selectedNode: ProofNode | null;
-    private history: ProofState[] = [];
-    private messages: ProofMessages;
+  public root: ProofNode;
+  public selectedNode: ProofNode | null;
+  private history: ProofState[] = [];
+  private messages: ProofMessages;
 
-    constructor(goal: Formula, hypotheses: Formula[] = [], messages?: Partial<ProofMessages>) {
-        ProofNode.reset();
-        const sequent = new Sequent(hypotheses, goal);
-        this.root = new ProofNode(sequent);
-        this.selectedNode = this.root;
-        this.messages = {
-            ...defaultProofMessages,
-            ...messages
-        };
+  constructor(
+    goal: Formula,
+    hypotheses: Formula[] = [],
+    messages?: Partial<ProofMessages>,
+  ) {
+    ProofNode.reset();
+    const sequent = new Sequent(hypotheses, goal);
+    this.root = new ProofNode(sequent);
+    this.selectedNode = this.root;
+    this.messages = {
+      ...defaultProofMessages,
+      ...messages,
+    };
+  }
+
+  private fail(key: ProofMessageKey): ProofResult {
+    return { success: false, error: this.messages[key] };
+  }
+
+  saveState(): void {
+    this.history.push({
+      root: this.cloneTree(this.root),
+      selectedId: this.selectedNode?.id ?? this.root.id,
+    });
+  }
+
+  private cloneTree(node: ProofNode): ProofNode {
+    const clone = node.clone();
+    clone.premises = node.premises.map((p) => this.cloneTree(p));
+    return clone;
+  }
+
+  undo(): boolean {
+    if (this.history.length === 0) return false;
+    const state = this.history.pop()!;
+    this.root = state.root;
+    this.selectedNode =
+      this.findNodeById(this.root, state.selectedId) ||
+      this.findFirstOpenGoal();
+    return true;
+  }
+
+  findNodeById(node: ProofNode, id: number): ProofNode | null {
+    if (node.id === id) return node;
+    for (const premise of node.premises) {
+      const found = this.findNodeById(premise, id);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  findFirstOpenGoal(): ProofNode | null {
+    return this.findOpenGoalInNode(this.root);
+  }
+
+  private findOpenGoalInNode(node: ProofNode): ProofNode | null {
+    if (!node.isComplete && node.rule === null) {
+      return node;
+    }
+    for (const premise of node.premises) {
+      const found = this.findOpenGoalInNode(premise);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  isComplete(): boolean {
+    return this.isNodeComplete(this.root);
+  }
+
+  private isNodeComplete(node: ProofNode): boolean {
+    if (!node.isComplete && node.rule === null) return false;
+    return node.premises.every((p) => this.isNodeComplete(p));
+  }
+
+  applyAxiom(hypothesis: Formula): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+    const sequent = node.sequent;
+
+    if (!sequent.hasInContext(hypothesis)) {
+      return this.fail("proofHypothesisNotInContext");
     }
 
-    private fail(key: ProofMessageKey): ProofResult {
-        return { success: false, error: this.messages[key] };
+    if (!sequent.goal.equals(hypothesis)) {
+      return this.fail("proofHypothesisGoalMismatch");
     }
 
-    saveState(): void {
-        this.history.push({
-            root: this.cloneTree(this.root),
-            selectedId: this.selectedNode?.id ?? this.root.id
-        });
+    this.saveState();
+    node.rule = "axiom";
+    node.isComplete = true;
+    this.selectedNode = this.findFirstOpenGoal();
+    return { success: true };
+  }
+
+  applyImpIntro(): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+    const goal = node.sequent.goal;
+
+    if (goal.type !== "imp") {
+      return this.fail("proofGoalNotImplication");
     }
 
-    private cloneTree(node: ProofNode): ProofNode {
-        const clone = node.clone();
-        clone.premises = node.premises.map(p => this.cloneTree(p));
-        return clone;
+    this.saveState();
+    const antecedent = goal.left;
+    const consequent = goal.right;
+    const newSequent = node.sequent
+      .addToContext(antecedent)
+      .withGoal(consequent);
+
+    const premise = new ProofNode(newSequent);
+    node.rule = "imp-intro";
+    node.premises = [premise];
+    node.dischargedAssumption = { formula: antecedent };
+
+    this.selectedNode = premise;
+    return { success: true };
+  }
+
+  applyImpElim(impFormula: Formula): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+
+    if (impFormula.type !== "imp") {
+      return this.fail("proofSelectedNotImplication");
     }
 
-    undo(): boolean {
-        if (this.history.length === 0) return false;
-        const state = this.history.pop()!;
-        this.root = state.root;
-        this.selectedNode = this.findNodeById(this.root, state.selectedId) || this.findFirstOpenGoal();
-        return true;
+    if (!impFormula.right.equals(node.sequent.goal)) {
+      return this.fail("proofImplicationConclusionMismatch");
     }
 
-    findNodeById(node: ProofNode, id: number): ProofNode | null {
-        if (node.id === id) return node;
-        for (const premise of node.premises) {
-            const found = this.findNodeById(premise, id);
-            if (found) return found;
-        }
-        return null;
+    this.saveState();
+    const premise1 = new ProofNode(node.sequent.withGoal(impFormula));
+    const premise2 = new ProofNode(node.sequent.withGoal(impFormula.left));
+
+    node.rule = "imp-elim";
+    node.premises = [premise1, premise2];
+
+    this.selectedNode = premise1;
+    return { success: true };
+  }
+
+  applyAndIntro(): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+    const goal = node.sequent.goal;
+
+    if (goal.type !== "and") {
+      return this.fail("proofGoalNotConjunction");
     }
 
-    findFirstOpenGoal(): ProofNode | null {
-        return this.findOpenGoalInNode(this.root);
+    this.saveState();
+    const premise1 = new ProofNode(node.sequent.withGoal(goal.left));
+    const premise2 = new ProofNode(node.sequent.withGoal(goal.right));
+
+    node.rule = "and-intro";
+    node.premises = [premise1, premise2];
+
+    this.selectedNode = premise1;
+    return { success: true };
+  }
+
+  applyAndElimLeft(conjFormula: Formula): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+
+    if (conjFormula.type !== "and") {
+      return this.fail("proofSelectedNotConjunction");
     }
 
-    private findOpenGoalInNode(node: ProofNode): ProofNode | null {
-        if (!node.isComplete && node.rule === null) {
-            return node;
-        }
-        for (const premise of node.premises) {
-            const found = this.findOpenGoalInNode(premise);
-            if (found) return found;
-        }
-        return null;
+    if (!conjFormula.left.equals(node.sequent.goal)) {
+      return this.fail("proofConjunctionLeftMismatch");
     }
 
-    isComplete(): boolean {
-        return this.isNodeComplete(this.root);
+    this.saveState();
+    const premise = new ProofNode(node.sequent.withGoal(conjFormula));
+
+    node.rule = "and-elim-left";
+    node.premises = [premise];
+
+    this.selectedNode = premise;
+    return { success: true };
+  }
+
+  applyAndElimRight(conjFormula: Formula): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+
+    if (conjFormula.type !== "and") {
+      return this.fail("proofSelectedNotConjunction");
     }
 
-    private isNodeComplete(node: ProofNode): boolean {
-        if (!node.isComplete && node.rule === null) return false;
-        return node.premises.every(p => this.isNodeComplete(p));
+    if (!conjFormula.right.equals(node.sequent.goal)) {
+      return this.fail("proofConjunctionRightMismatch");
     }
 
-    applyAxiom(hypothesis: Formula): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        const sequent = node.sequent;
-        
-        if (!sequent.hasInContext(hypothesis)) {
-            return this.fail('proofHypothesisNotInContext');
-        }
-        
-        if (!sequent.goal.equals(hypothesis)) {
-            return this.fail('proofHypothesisGoalMismatch');
-        }
+    this.saveState();
+    const premise = new ProofNode(node.sequent.withGoal(conjFormula));
 
-        this.saveState();
-        node.rule = 'axiom';
-        node.isComplete = true;
-        this.selectedNode = this.findFirstOpenGoal();
-        return { success: true };
+    node.rule = "and-elim-right";
+    node.premises = [premise];
+
+    this.selectedNode = premise;
+    return { success: true };
+  }
+
+  applyOrIntroLeft(): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+    const goal = node.sequent.goal;
+
+    if (goal.type !== "or") {
+      return this.fail("proofGoalNotDisjunction");
     }
 
-    applyImpIntro(): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        const goal = node.sequent.goal;
-        
-        if (goal.type !== 'imp') {
-            return this.fail('proofGoalNotImplication');
-        }
+    this.saveState();
+    const premise = new ProofNode(node.sequent.withGoal(goal.left));
 
-        this.saveState();
-        const antecedent = goal.left;
-        const consequent = goal.right;
-        const newSequent = node.sequent.addToContext(antecedent).withGoal(consequent);
-        
-        const premise = new ProofNode(newSequent);
-        node.rule = 'imp-intro';
-        node.premises = [premise];
-        node.dischargedAssumption = { formula: antecedent };
-        
-        this.selectedNode = premise;
-        return { success: true };
+    node.rule = "or-intro-left";
+    node.premises = [premise];
+
+    this.selectedNode = premise;
+    return { success: true };
+  }
+
+  applyOrIntroRight(): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+    const goal = node.sequent.goal;
+
+    if (goal.type !== "or") {
+      return this.fail("proofGoalNotDisjunction");
     }
 
-    applyImpElim(impFormula: Formula): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        
-        if (impFormula.type !== 'imp') {
-            return this.fail('proofSelectedNotImplication');
-        }
-        
-        if (!impFormula.right.equals(node.sequent.goal)) {
-            return this.fail('proofImplicationConclusionMismatch');
-        }
+    this.saveState();
+    const premise = new ProofNode(node.sequent.withGoal(goal.right));
 
-        this.saveState();
-        const premise1 = new ProofNode(node.sequent.withGoal(impFormula));
-        const premise2 = new ProofNode(node.sequent.withGoal(impFormula.left));
-        
-        node.rule = 'imp-elim';
-        node.premises = [premise1, premise2];
-        
-        this.selectedNode = premise1;
-        return { success: true };
+    node.rule = "or-intro-right";
+    node.premises = [premise];
+
+    this.selectedNode = premise;
+    return { success: true };
+  }
+
+  applyOrElim(disjFormula: Formula): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+
+    if (disjFormula.type !== "or") {
+      return this.fail("proofSelectedNotDisjunction");
     }
 
-    applyAndIntro(): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        const goal = node.sequent.goal;
-        
-        if (goal.type !== 'and') {
-            return this.fail('proofGoalNotConjunction');
-        }
+    this.saveState();
+    const left = disjFormula.left;
+    const right = disjFormula.right;
 
-        this.saveState();
-        const premise1 = new ProofNode(node.sequent.withGoal(goal.left));
-        const premise2 = new ProofNode(node.sequent.withGoal(goal.right));
-        
-        node.rule = 'and-intro';
-        node.premises = [premise1, premise2];
-        
-        this.selectedNode = premise1;
-        return { success: true };
+    const premise1 = new ProofNode(node.sequent.withGoal(disjFormula));
+    const premise2 = new ProofNode(node.sequent.addToContext(left));
+    const premise3 = new ProofNode(node.sequent.addToContext(right));
+
+    node.rule = "or-elim";
+    node.premises = [premise1, premise2, premise3];
+    node.dischargedAssumption = { left, right };
+
+    this.selectedNode = premise1;
+    return { success: true };
+  }
+
+  applyNegIntro(): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+    const goal = node.sequent.goal;
+
+    if (goal.type !== "neg") {
+      return this.fail("proofGoalNotNegation");
     }
 
-    applyAndElimLeft(conjFormula: Formula): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        
-        if (conjFormula.type !== 'and') {
-            return this.fail('proofSelectedNotConjunction');
-        }
-        
-        if (!conjFormula.left.equals(node.sequent.goal)) {
-            return this.fail('proofConjunctionLeftMismatch');
-        }
+    this.saveState();
+    const inner = goal.inner;
+    const newSequent = node.sequent.addToContext(inner).withGoal(Formula.bot());
 
-        this.saveState();
-        const premise = new ProofNode(node.sequent.withGoal(conjFormula));
-        
-        node.rule = 'and-elim-left';
-        node.premises = [premise];
-        
-        this.selectedNode = premise;
-        return { success: true };
+    const premise = new ProofNode(newSequent);
+    node.rule = "neg-intro";
+    node.premises = [premise];
+    node.dischargedAssumption = { formula: inner };
+
+    this.selectedNode = premise;
+    return { success: true };
+  }
+
+  applyNegElim(formula: Formula): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
+
+    const node = this.selectedNode;
+
+    if (node.sequent.goal.type !== "bot") {
+      return this.fail("goalMustBeFalsum");
     }
 
-    applyAndElimRight(conjFormula: Formula): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        
-        if (conjFormula.type !== 'and') {
-            return this.fail('proofSelectedNotConjunction');
-        }
-        
-        if (!conjFormula.right.equals(node.sequent.goal)) {
-            return this.fail('proofConjunctionRightMismatch');
-        }
+    this.saveState();
+    const negFormula = Formula.neg(formula);
 
-        this.saveState();
-        const premise = new ProofNode(node.sequent.withGoal(conjFormula));
-        
-        node.rule = 'and-elim-right';
-        node.premises = [premise];
-        
-        this.selectedNode = premise;
-        return { success: true };
-    }
+    const premise1 = new ProofNode(node.sequent.withGoal(formula));
+    const premise2 = new ProofNode(node.sequent.withGoal(negFormula));
 
-    applyOrIntroLeft(): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        const goal = node.sequent.goal;
-        
-        if (goal.type !== 'or') {
-            return this.fail('proofGoalNotDisjunction');
-        }
+    node.rule = "neg-elim";
+    node.premises = [premise1, premise2];
 
-        this.saveState();
-        const premise = new ProofNode(node.sequent.withGoal(goal.left));
-        
-        node.rule = 'or-intro-left';
-        node.premises = [premise];
-        
-        this.selectedNode = premise;
-        return { success: true };
-    }
+    this.selectedNode = premise1;
+    return { success: true };
+  }
 
-    applyOrIntroRight(): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        const goal = node.sequent.goal;
-        
-        if (goal.type !== 'or') {
-            return this.fail('proofGoalNotDisjunction');
-        }
+  applyBotElim(): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
 
-        this.saveState();
-        const premise = new ProofNode(node.sequent.withGoal(goal.right));
-        
-        node.rule = 'or-intro-right';
-        node.premises = [premise];
-        
-        this.selectedNode = premise;
-        return { success: true };
-    }
+    const node = this.selectedNode;
 
-    applyOrElim(disjFormula: Formula): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        
-        if (disjFormula.type !== 'or') {
-            return this.fail('proofSelectedNotDisjunction');
-        }
+    this.saveState();
+    const premise = new ProofNode(node.sequent.withGoal(Formula.bot()));
 
-        this.saveState();
-        const left = disjFormula.left;
-        const right = disjFormula.right;
-        
-        const premise1 = new ProofNode(node.sequent.withGoal(disjFormula));
-        const premise2 = new ProofNode(node.sequent.addToContext(left));
-        const premise3 = new ProofNode(node.sequent.addToContext(right));
-        
-        node.rule = 'or-elim';
-        node.premises = [premise1, premise2, premise3];
-        node.dischargedAssumption = { left, right };
-        
-        this.selectedNode = premise1;
-        return { success: true };
-    }
+    node.rule = "bot-elim";
+    node.premises = [premise];
 
-    applyNegIntro(): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        const goal = node.sequent.goal;
-        
-        if (goal.type !== 'neg') {
-            return this.fail('proofGoalNotNegation');
-        }
+    this.selectedNode = premise;
+    return { success: true };
+  }
 
-        this.saveState();
-        const inner = goal.inner;
-        const newSequent = node.sequent.addToContext(inner).withGoal(Formula.bot());
-        
-        const premise = new ProofNode(newSequent);
-        node.rule = 'neg-intro';
-        node.premises = [premise];
-        node.dischargedAssumption = { formula: inner };
-        
-        this.selectedNode = premise;
-        return { success: true };
-    }
+  applyraa(): ProofResult {
+    if (!this.selectedNode) return this.fail("noGoalSelected");
 
-    applyNegElim(formula: Formula): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-        
-        if (node.sequent.goal.type !== 'bot') {
-            return this.fail('goalMustBeFalsum');
-        }
+    const node = this.selectedNode;
 
-        this.saveState();
-        const negFormula = Formula.neg(formula);
-        
-        const premise1 = new ProofNode(node.sequent.withGoal(formula));
-        const premise2 = new ProofNode(node.sequent.withGoal(negFormula));
-        
-        node.rule = 'neg-elim';
-        node.premises = [premise1, premise2];
-        
-        this.selectedNode = premise1;
-        return { success: true };
-    }
+    this.saveState();
+    const negGoal = Formula.neg(node.sequent.goal);
+    const newSequent = node.sequent
+      .addToContext(negGoal)
+      .withGoal(Formula.bot());
 
-    applyBotElim(): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
+    const premise = new ProofNode(newSequent);
+    node.rule = "raa";
+    node.premises = [premise];
+    node.dischargedAssumption = { formula: negGoal };
 
-        this.saveState();
-        const premise = new ProofNode(node.sequent.withGoal(Formula.bot()));
-        
-        node.rule = 'bot-elim';
-        node.premises = [premise];
-        
-        this.selectedNode = premise;
-        return { success: true };
-    }
-
-    applyraa(): ProofResult {
-        if (!this.selectedNode) return this.fail('noGoalSelected');
-        
-        const node = this.selectedNode;
-
-        this.saveState();
-        const negGoal = Formula.neg(node.sequent.goal);
-        const newSequent = node.sequent.addToContext(negGoal).withGoal(Formula.bot());
-        
-        const premise = new ProofNode(newSequent);
-        node.rule = 'raa';
-        node.premises = [premise];
-        node.dischargedAssumption = { formula: negGoal };
-        
-        this.selectedNode = premise;
-        return { success: true };
-    }
+    this.selectedNode = premise;
+    return { success: true };
+  }
 }

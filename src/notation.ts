@@ -1,11 +1,11 @@
-import { Formula } from './formulas';
+import { Formula } from "./formulas";
 
 export type NotationRule =
   | {
-      type: 'formula';
+      type: "formula";
       formula: Formula;
     }
   | {
-      type: 'set';
+      type: "set";
       formulas: Formula[];
     };
